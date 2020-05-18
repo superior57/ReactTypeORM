@@ -6,39 +6,38 @@
  * @desc Oficinas por medico
  */
 
-import { Entity, Index, BaseEntity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, ManyToMany, JoinTable } from "typeorm";
-import { doctor as Doctor } from './doctor'
-import { Especializacion } from "./Especializacion";
-
+import { Entity, Index, BaseEntity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, ManyToMany, JoinTable, OneToMany } from 'typeorm';
+import { doctor as Doctor } from './doctor';
+import { Especializacion } from './Especializacion';
+import { oficina_horario } from './oficina_horario';
 
 @Entity('oficina')
-@Index(["id"], { unique: true })
+@Index(['id'], { unique: true })
 export class Oficina extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column() tiempo_por_cliente_minutos: String
-  @Column() costo_primera_consulta: String
-  @Column() costo_consulta: String
-  @Column() direccion: String
-  @Column() ciudad: String
-  @Column() provincia: String
-  @Column() pais: String
-  @Column() codigo_zip: String
-  @Column() referencias_fisicas: String
-  @Column() longitud: String
-  @Column() latitud: String
+  @Column() tiempo_por_cliente_minutos: String;
+  @Column() costo_primera_consulta: String;
+  @Column() costo_consulta: String;
+  @Column() direccion: String;
+  @Column() ciudad: String;
+  @Column() provincia: String;
+  @Column() pais: String;
+  @Column() codigo_zip: String;
+  @Column() referencias_fisicas: String;
+  @Column() longitud: String;
+  @Column() latitud: String;
   // @Column() doctor_id: Number
 
-  @ManyToOne(_type => Doctor, doctor => doctor.oficinas, { onDelete: "CASCADE" })
+  @ManyToOne(_type => Doctor, doctor => doctor.oficinas, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'doctor_id' })
-  medico: Doctor
+  medico: Doctor;
 
   @ManyToMany(_type => Especializacion, especializacion => especializacion.oficinas)
-  @JoinTable({ name: "oficina_especializaciones" })
-  especializaciones: Especializacion[]
+  @JoinTable({ name: 'oficina_especializaciones' })
+  especializaciones: Especializacion[];
 
+  @OneToMany(_type => oficina_horario, oficina_horario => oficina_horario.oficina)
+  horarios: oficina_horario;
 }
-
-
-

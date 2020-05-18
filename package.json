@@ -1,39 +1,41 @@
 {
-   "name": "medpalBack",
-   "version": "0.0.1",
-   "description": "Awesome project developed with TypeORM.",
-   "devDependencies": {
-      "@types/bcryptjs": "^2.4.2",
-      "@types/cors": "^2.8.6",
-      "@types/express": "^4.17.6",
-      "@types/graphql": "^14.5.0",
-      "@types/helmet": "^0.0.47",
-      "@types/jsonwebtoken": "^8.5.0",
-      "@types/morgan": "^1.9.0",
-      "@types/node": "^8.0.29",
-      "ts-node": "3.3.0",
-      "tsc-watch": "^4.2.5",
-      "typescript": "3.3.3333"
-   },
-   "dependencies": {
-      "apollo-server-express": "^2.13.1",
-      "bcryptjs": "^2.4.3",
-      "class-validator": "^0.12.2",
-      "cors": "^2.8.5",
-      "express": "^4.17.1",
-      "graphql": "^15.0.0",
-      "helmet": "^3.22.0",
-      "jsonwebtoken": "^8.5.1",
-      "morgan": "^1.10.0",
-      "pg": "^7.3.0",
-      "reflect-metadata": "^0.1.10",
-      "typeorm": "0.2.24"
-   },
-   "scripts": {
-      "startuno": "ts-node src/index.ts",
-      "build": "tsc",
-      "start": "node dist/index.js",
-      "dev": "tsc-watch --onSuccess \"node dist/index.js \" ",
-      "typeorm": "TS_NODE_PROJECT=tsconfig.ts-node.json TS_NODE_TRANSPILE_ONLY=true ts-node ./node_modules/typeorm/cli.js"
-   }
+  "name": "medpalBack",
+  "version": "0.0.1",
+  "description": "Awesome project developed with TypeORM.",
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.2",
+    "@types/cors": "^2.8.6",
+    "@types/express": "^4.17.6",
+    "@types/graphql": "^14.5.0",
+    "@types/helmet": "^0.0.47",
+    "@types/jsonwebtoken": "^8.5.0",
+    "@types/morgan": "^1.9.0",
+    "@types/node": "^8.0.29",
+    "nodemon": "^2.0.4",
+    "ts-node": "3.3.0",
+    "tsc-watch": "^4.2.5",
+    "typescript": "3.3.3333"
+  },
+  "dependencies": {
+    "apollo-server-express": "^2.13.1",
+    "bcryptjs": "^2.4.3",
+    "class-validator": "^0.12.2",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "graphql": "^15.0.0",
+    "helmet": "^3.22.0",
+    "jsonwebtoken": "^8.5.1",
+    "morgan": "^1.10.0",
+    "pg": "^7.3.0",
+    "reflect-metadata": "^0.1.10",
+    "typeorm": "0.2.24"
+  },
+  "scripts": {
+    "startuno": "ts-node src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsc-watch --onSuccess \"node dist/index.js \" ",
+    "typeorm": "TS_NODE_PROJECT=tsconfig.ts-node.json TS_NODE_TRANSPILE_ONLY=true ts-node ./node_modules/typeorm/cli.js",
+    "devv": "nodemon src/index.ts"
+  }
 }

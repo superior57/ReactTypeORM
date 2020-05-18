@@ -6,23 +6,20 @@
  * @desc Horarios de atencion de las oficinas por medico
  */
 
-import { Entity, Index, BaseEntity, Column, PrimaryGeneratedColumn } from "typeorm";
+import { Entity, Index, BaseEntity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { Oficina } from './Oficina';
 
 @Entity()
-@Index(["id"], { unique: true })
+@Index(['id'], { unique: true })
 export class oficina_horario extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
   @Column() authority_name: string;
-  @Column() dia_semana: String
-  @Column() hora_inicio: String
-  @Column() hora_fin: String
-  @Column() oficina_id: Number
+  @Column() dia_semana: String;
+  @Column() hora_inicio: String;
+  @Column() hora_fin: String;
+  // @Column() oficina_id: Number
+
+  @ManyToOne(_type => Oficina, Oficina => Oficina.horarios)
+  oficina: Oficina;
 }
-
-
-
-
-
-
-
