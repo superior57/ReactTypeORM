@@ -6,14 +6,13 @@
  * @desc [description]
  */
 
-
-import { Router } from "express";
-import { checkJwt } from "../middlewares/checkJwt";
-import DoctorController from '../controllers/DoctorController'
+import { Router } from 'express';
+import { checkJwt } from '../middlewares/checkJwt';
+import DoctorController from '../controllers/DoctorController';
 
 const router = Router();
 //Login route
-router.get("/:id([0-9]+)", [checkJwt], DoctorController.getOneById);
-router.patch("/:id([0-9]+)", [checkJwt], DoctorController.editMedico);
+router.get('/:id([0-9]+)', [checkJwt], DoctorController.getOneById);
+router.patch('/:id([0-9]+)', [checkJwt], DoctorController.editMedico);
 
 export default router;

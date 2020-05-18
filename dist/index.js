@@ -28,12 +28,12 @@ const startServer = () => __awaiter(this, void 0, void 0, function* () {
     server.applyMiddleware({ app });
     app.use(cors_1.default());
     app.use(helmet_1.default());
-    app.use(morgan_1.default("dev"));
+    app.use(morgan_1.default('dev'));
     app.use(express_1.default.json());
-    app.use("/", index_routes_1.default);
+    app.use('/', index_routes_1.default);
     app.listen({
-        port: 4000
-    }, () => console.log(`🚀 Server ready at http://localhost:4000/${server.graphqlPath}`));
+        port: 4000,
+    }, () => console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`));
 });
 startServer();
 //# sourceMappingURL=index.js.map
