@@ -5,40 +5,48 @@
  * @modify date 2020-05-17 18:24:10
  * @desc [description]
  */
-import { Request, Response } from "express";
-import { getRepository } from "typeorm";
-import { validate } from "class-validator";
-import { doctor } from "../entity/doctor";
+import { Request, Response } from 'express';
+import { getRepository } from 'typeorm';
+import { validate } from 'class-validator';
+import { doctor } from '../entity/doctor';
 
 class DoctorController {
   static getOneById = async (req: Request, res: Response) => {
     // Get the ID from the url
-    console.log(req.body, req.params)
+    console.log(req.body, req.params);
     const id: number = parseInt(req.params.id);
     //Get the user from database
     const medicoRepository = getRepository(doctor);
     //     const userRepository = connection.getRepository(User);
     // const users = await userRepository.find({ relations: ["photos"] });
     try {
-      const oficinas = await medicoRepository.find({ relations: ["oficinas"], where: { id: id }, });
-      console.log('Oficinas', oficinas)
+      const oficinas = await medicoRepository.find({ relations: ['oficinas'], where: { id: id } });
+      console.log('Oficinas', oficinas);
       // const medico = await medicoRepository.findOneOrFail(id);
       res.status(404).send({ transaccion: true, data: oficinas });
     } catch (error) {
       res.status(404).send({ transaccion: false, mensaje: 'Error consultando', error: error });
-    };
-  }
+    }
+  };
   static editMedico = async (req: Request, res: Response) => {
     //Get the ID from the url
     const id = parseInt(req.params.id);
 
     //Get values from the body
-    const { activado = false, nombres = '', apellidos = '', titulo_honorifico = '', declaracion_profesional = '', numero_telefono = '', practica_desde = '' } = req.body;
+    const {
+      activado = false,
+      nombres = '',
+      apellidos = '',
+      titulo_honorifico = '',
+      declaracion_profesional = '',
+      numero_telefono = '',
+      practica_desde = '',
+    } = req.body;
 
     if (!(!!nombres && apellidos && !!titulo_honorifico && !!declaracion_profesional && !!numero_telefono && !!practica_desde)) {
       res.status(404).send({ transaccion: false, mensaje: 'Debe enviar todos los campos', error: '' });
     }
-    console.log('31 ingresa ', req.body)
+    console.log('31 ingresa ', req.body);
     //Try to find user on database
     const medicoRepository = getRepository(doctor);
     let medico;
@@ -49,7 +57,7 @@ class DoctorController {
       res.status(404).send({ transaccion: false, mensaje: 'Medico no encontrado', error });
       return;
     }
-    console.log('42 ingresa ', medico)
+    console.log('42 ingresa ', medico);
     //Validate the new values on model
     medico.activado = activado;
     medico.nombres = nombres;
@@ -68,7 +76,7 @@ class DoctorController {
     try {
       medico = await medicoRepository.save(medico);
     } catch (e) {
-      console.log(e)
+      console.log(e);
       res.status(409).send({ transaccion: false, mensaje: 'ocurrio un error guardando los datos, Intente nuevamente', error: e, medico });
       return;
     }
@@ -77,4 +85,4 @@ class DoctorController {
   };
 }
 
-export default DoctorController
+export default DoctorController;

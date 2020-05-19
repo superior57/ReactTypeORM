@@ -28,7 +28,7 @@ export class Oficina extends BaseEntity {
   @Column() referencias_fisicas: String;
   @Column() longitud: String;
   @Column() latitud: String;
-  // @Column() doctor_id: Number
+  @Column() doctor_id: Number;
 
   @ManyToOne(_type => Doctor, doctor => doctor.oficinas, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'doctor_id' })
@@ -39,5 +39,5 @@ export class Oficina extends BaseEntity {
   especializaciones: Especializacion[];
 
   @OneToMany(_type => oficina_horario, oficina_horario => oficina_horario.oficina)
-  horarios: oficina_horario;
+  horarios: oficina_horario[];
 }

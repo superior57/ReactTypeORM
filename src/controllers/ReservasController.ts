@@ -5,24 +5,23 @@
  * @modify date 2020-05-17 18:24:10
  * @desc [description]
  */
-import { Request, Response } from "express";
-import { getRepository, } from "typeorm";//createConnection
-import { validate } from "class-validator";
-import { doctor } from "../entity/doctor";
+import { Request, Response } from 'express';
+import { getRepository } from 'typeorm'; //createConnection
+import { validate } from 'class-validator';
+import { doctor } from '../entity/doctor';
 // import { Oficina } from '../entity/Oficina'
-import { Reservas } from '../entity/Reservas'
+import { Reservas } from '../entity/Reservas';
 // import { Cliente } from '../entity/Cliente'
 
 class ReservasController {
   static getReservasbyMedico = async (req: Request, res: Response) => {
     // Get the ID from the url
-    console.log(req.body, req.params)
+    console.log(req.body, req.params);
     const id: number = parseInt(req.params.id);
     //Get the user from database
     // const oficinaRepository = getRepository(Oficina);
     const reservasRepository = getRepository(Reservas);
     try {
-
       // let connection = await createConnection({ entities: [Reservas, Cliente] })
       //   .getRepository(Reservas)
       //   .createQueryBuilder("user")
@@ -30,44 +29,51 @@ class ReservasController {
       //   .getMany();
 
       // const oficinas = await oficinaRepository.find({ select: ['id'], where: { doctor_id: id } });
-      const reservas = await reservasRepository.
-        find({
-          select: [
-            "id",
-            "inicio",
-            "fin",
-            "fecha_reserva",
-            "disponible",
-            "razon_no_disponibilidad",
-            "canal_reserva",
-            "estado_reserva",
-            "transaction_id",
-            "phone_number",
-            "especializacion_id",
-            "cliente"
-          ],
-          relations: ["cliente"],
-          where: { doctor_id: id }
-        });
+      const reservas = await reservasRepository.find({
+        select: [
+          'id',
+          'inicio',
+          'fin',
+          'fecha_reserva',
+          'disponible',
+          'razon_no_disponibilidad',
+          'canal_reserva',
+          'estado_reserva',
+          'transaction_id',
+          'phone_number',
+          'especializacion_id',
+          'cliente',
+        ],
+        relations: ['cliente'],
+        where: { doctor_id: id },
+      });
 
       // const medico = await userRepository.findOneOrFail(id);
       // console.log(oficinas)
       res.status(404).send({ transaccion: true, data: reservas });
     } catch (error) {
       res.status(404).send({ transaccion: false, mensaje: 'Error consultando', error: error });
-    };
-  }
+    }
+  };
   static editMedico = async (req: Request, res: Response) => {
     //Get the ID from the url
     const id = parseInt(req.params.id);
 
     //Get values from the body
-    const { activado = false, nombres = '', apellidos = '', titulo_honorifico = '', declaracion_profesional = '', numero_telefono = '', practica_desde = '' } = req.body;
+    const {
+      activado = false,
+      nombres = '',
+      apellidos = '',
+      titulo_honorifico = '',
+      declaracion_profesional = '',
+      numero_telefono = '',
+      practica_desde = '',
+    } = req.body;
 
     if (!(!!nombres && apellidos && !!titulo_honorifico && !!declaracion_profesional && !!numero_telefono && !!practica_desde)) {
       res.status(404).send({ transaccion: false, mensaje: 'Debe enviar todos los campos', error: '' });
     }
-    console.log('31 ingresa ', req.body)
+    console.log('31 ingresa ', req.body);
     //Try to find user on database
     const medicoRepository = getRepository(doctor);
     let medico;
@@ -78,7 +84,7 @@ class ReservasController {
       res.status(404).send({ transaccion: false, mensaje: 'Medico no encontrado', error });
       return;
     }
-    console.log('42 ingresa ', medico)
+    console.log('42 ingresa ', medico);
     //Validate the new values on model
     medico.activado = activado;
     medico.nombres = nombres;
@@ -97,7 +103,7 @@ class ReservasController {
     try {
       medico = await medicoRepository.save(medico);
     } catch (e) {
-      console.log(e)
+      console.log(e);
       res.status(409).send({ transaccion: false, mensaje: 'ocurrio un error guardando los datos, Intente nuevamente', error: e, medico });
       return;
     }
@@ -106,4 +112,4 @@ class ReservasController {
   };
 }
 
-export default ReservasController
+export default ReservasController;
