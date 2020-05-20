@@ -16,7 +16,7 @@ class OficinaController {
 
       console.log('salida /api/oficinas/getOficinasByDoctor', oficinas);
 
-      res.status(404).send({ transaccion: true, data: oficinas });
+      res.status(200).send({ transaccion: true, data: oficinas });
     } catch (error) {
       console.log('error /api/oficinas/getOficinasByDoctor', error);
       res.status(404).send({ transaccion: false, mensaje: 'Error consultando', error: error });

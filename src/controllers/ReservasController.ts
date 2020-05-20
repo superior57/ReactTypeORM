@@ -9,8 +9,9 @@ import { Request, Response } from 'express';
 import { getRepository } from 'typeorm'; //createConnection
 import { validate } from 'class-validator';
 import { doctor } from '../entity/doctor';
-// import { Oficina } from '../entity/Oficina'
+
 import { Reservas } from '../entity/Reservas';
+// import { Oficina } from '../entity/Oficina';
 // import { Cliente } from '../entity/Cliente'
 
 class ReservasController {
@@ -29,30 +30,41 @@ class ReservasController {
       //   .getMany();
 
       // const oficinas = await oficinaRepository.find({ select: ['id'], where: { doctor_id: id } });
-      const reservas = await reservasRepository.find({
-        select: [
-          'id',
-          'inicio',
-          'fin',
-          'fecha_reserva',
-          'disponible',
-          'razon_no_disponibilidad',
-          'canal_reserva',
-          'estado_reserva',
-          'transaction_id',
-          'phone_number',
-          'especializacion_id',
-          'cliente',
-        ],
-        relations: ['cliente'],
-        where: { doctor_id: id },
-      });
+      // const reservas = await reservasRepository.find({
+      //   select: [
+      //     'id',
+      //     'inicio',
+      //     'fin',
+      //     'fecha_reserva',
+      //     'disponible',
+      //     'razon_no_disponibilidad',
+      //     'canal_reserva',
+      //     'estado_reserva',
+      //     'transaction_id',
+      //     'phone_number',
+      //     'especializacion_id',
+      //     'cliente',
+      //   ],
+      //   relations: ['cliente', 'oficina'],
+      //   where: { oficina: { doctor_id: id } },
+      // });
 
-      // const medico = await userRepository.findOneOrFail(id);
-      // console.log(oficinas)
-      res.status(404).send({ transaccion: true, data: reservas });
+      // try {
+      const reserva = await reservasRepository
+        .createQueryBuilder('r')
+        .select(['r.id', 'r.inicio', 'r.fin', 'o.id'])
+        .addSelect('c.nombres')
+        .addSelect('c.apellidos')
+        .innerJoin('oficina', 'o', 'r.oficina_id=o.id')
+        .innerJoin('doctor', 'd', 'o.doctor_id = d.id')
+        .innerJoin('cliente', 'c', 'r.cliente_id = c.id')
+        .where('d.id = :id', { id })
+        .getMany();
+
+      console.log('salida /api/oficinas/getHorariosByDoctor', reserva, id);
+      res.status(200).send({ transaccion: true, data: reserva });
     } catch (error) {
-      res.status(404).send({ transaccion: false, mensaje: 'Error consultando', error: error });
+      res.status(200).send({ transaccion: false, mensaje: 'Error consultando', error: error });
     }
   };
   static editMedico = async (req: Request, res: Response) => {
@@ -71,7 +83,7 @@ class ReservasController {
     } = req.body;
 
     if (!(!!nombres && apellidos && !!titulo_honorifico && !!declaracion_profesional && !!numero_telefono && !!practica_desde)) {
-      res.status(404).send({ transaccion: false, mensaje: 'Debe enviar todos los campos', error: '' });
+      res.status(200).send({ transaccion: false, mensaje: 'Debe enviar todos los campos', error: '' });
     }
     console.log('31 ingresa ', req.body);
     //Try to find user on database
@@ -81,7 +93,7 @@ class ReservasController {
       medico = await medicoRepository.findOneOrFail(id);
     } catch (error) {
       //If not found, send a 404 response
-      res.status(404).send({ transaccion: false, mensaje: 'Medico no encontrado', error });
+      res.status(200).send({ transaccion: false, mensaje: 'Medico no encontrado', error });
       return;
     }
     console.log('42 ingresa ', medico);
