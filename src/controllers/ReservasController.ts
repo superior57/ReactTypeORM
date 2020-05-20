@@ -50,6 +50,9 @@ class ReservasController {
       // });
 
       // try {
+
+
+
       const reserva = await reservasRepository
         .createQueryBuilder('r')
         .select(['r.id', 'r.inicio', 'r.fin', 'o.id'])
