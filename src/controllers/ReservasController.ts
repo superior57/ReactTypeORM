@@ -16,53 +16,19 @@ import { Reservas } from '../entity/Reservas';
 
 class ReservasController {
   static getReservasbyMedico = async (req: Request, res: Response) => {
-    // Get the ID from the url
     console.log(req.body, req.params);
     const id: number = parseInt(req.params.id);
-    //Get the user from database
-    // const oficinaRepository = getRepository(Oficina);
+
     const reservasRepository = getRepository(Reservas);
     try {
-      // let connection = await createConnection({ entities: [Reservas, Cliente] })
-      //   .getRepository(Reservas)
-      //   .createQueryBuilder("user")
-      //   .leftJoinAndSelect("user.photos", "photo")
-      //   .getMany();
-
-      // const oficinas = await oficinaRepository.find({ select: ['id'], where: { doctor_id: id } });
-      // const reservas = await reservasRepository.find({
-      //   select: [
-      //     'id',
-      //     'inicio',
-      //     'fin',
-      //     'fecha_reserva',
-      //     'disponible',
-      //     'razon_no_disponibilidad',
-      //     'canal_reserva',
-      //     'estado_reserva',
-      //     'transaction_id',
-      //     'phone_number',
-      //     'especializacion_id',
-      //     'cliente',
-      //   ],
-      //   relations: ['cliente', 'oficina'],
-      //   where: { oficina: { doctor_id: id } },
-      // });
-
-      // try {
-
-
-
       const reserva = await reservasRepository
         .createQueryBuilder('r')
-        .select(['r.id', 'r.inicio', 'r.fin', 'o.id'])
-        .addSelect('c.nombres')
-        .addSelect('c.apellidos')
-        .innerJoin('oficina', 'o', 'r.oficina_id=o.id')
-        .innerJoin('doctor', 'd', 'o.doctor_id = d.id')
-        .innerJoin('cliente', 'c', 'r.cliente_id = c.id')
+        .innerJoinAndSelect('oficina', 'o', 'r.oficina_id=o.id')
+        .innerJoinAndSelect('doctor', 'd', 'o.doctor_id = d.id')
+        .innerJoinAndSelect('cliente', 'c', 'r.cliente_id = c.id')
+        .select(['r', 'c.cedula_identidad identidad', 'c.apellidos apellidos', 'c.nombres nombres', 'o.id oficina_id'])
         .where('d.id = :id', { id })
-        .getMany();
+        .getRawMany();
 
       console.log('salida /api/oficinas/getHorariosByDoctor', reserva, id);
       res.status(200).send({ transaccion: true, data: reserva });
