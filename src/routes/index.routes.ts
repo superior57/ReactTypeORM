@@ -20,6 +20,7 @@ import user from './medUser.routes';
 import medicos from './medicos.routes';
 import citas from './citas.routes';
 import oficinas from './oficinas.routes';
+import cliente from './cliente.routes';
 
 const routes = Router();
 
@@ -45,5 +46,6 @@ routes.use('/user', user);
 routes.use('/api/medicos', medicos);
 routes.use('/api/citas', citas);
 routes.use('/api/oficinas', oficinas);
+routes.use('/api/clientes', cliente);
 
 export default routes;

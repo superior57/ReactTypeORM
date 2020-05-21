@@ -18,7 +18,7 @@ export class Cliente extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: "varchar" }) cedula_identidad: string;
+  @Column({ type: "varchar", unique: true }) cedula_identidad: string;
   @Column() cedula_representante: String
   @Column() titulo_honorifico: String
   @Column({ nullable: false, type: "varchar" }) nombres: String

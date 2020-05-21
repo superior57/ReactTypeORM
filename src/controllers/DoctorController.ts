@@ -69,7 +69,7 @@ class DoctorController {
 
     const errors = await validate(medico);
     if (errors.length > 0) {
-      res.status(400).send(errors);
+      res.status(404).send({ transaccion: false, mensaje: 'Debe enviar todos los campos', error: errors });
       return;
     }
     //Try to safe, if fails, that means username already in use
