@@ -21,7 +21,7 @@ class ClienteController {
       const clienteRepository = getRepository(Cliente);
       //     const userRepository = connection.getRepository(User);
       // const users = await userRepository.find({ relations: ["photos"] });
-      const cliente = await clienteRepository.findOneOrFail({ select: ["nombres", "apellidos", "cedula_identidad", "sexo", "telefono"], where: { cedula_identidad: id } });
+      const cliente = await clienteRepository.findOneOrFail({ select: ["id","nombres", "apellidos", "cedula_identidad", "sexo", "telefono"], where: { cedula_identidad: id } });
       console.log('Oficinas', cliente);
       // const medico = await medicoRepository.findOneOrFail(id);
       res.status(200).send({ transaccion: true, data: cliente });
