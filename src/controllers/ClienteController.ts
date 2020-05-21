@@ -14,20 +14,19 @@ import { Cliente } from '../entity';
 class ClienteController {
   static getOneById = async (req: Request, res: Response) => {
     try {
-      // Get the ID from the url
-      console.log(req.body, req.params);
       const id = req.params.id;
-      //Get the user from database
+      console.log('Entrada /api/clientes/getOneById', id);
       const clienteRepository = getRepository(Cliente);
-      //     const userRepository = connection.getRepository(User);
-      // const users = await userRepository.find({ relations: ["photos"] });
-      const cliente = await clienteRepository.findOneOrFail({ select: ["id","nombres", "apellidos", "cedula_identidad", "sexo", "telefono"], where: { cedula_identidad: id } });
-      console.log('Oficinas', cliente);
-      // const medico = await medicoRepository.findOneOrFail(id);
+
+      const cliente = await clienteRepository.findOneOrFail({
+        select: ['id', 'nombres', 'apellidos', 'cedula_identidad', 'sexo', 'telefono'],
+        where: { cedula_identidad: id },
+      });
+      console.log('Salida /api/clientes/getOneById', cliente);
       res.status(200).send({ transaccion: true, data: cliente });
     } catch (error) {
       res.status(404).send({ transaccion: false, mensaje: 'Error consultando', error: error });
     }
-  }
+  };
 }
-export default ClienteController
+export default ClienteController;
