@@ -12,7 +12,7 @@ import config from '../config/config';
 export const checkJwt = (req: Request, res: Response, next: NextFunction) => {
   //Get the jwt token from the head
 
-  // console.log(req.headers)
+  console.log(req.headers)
 
   let token = <string>req.headers['authorization'];
   token = token.split(' ')[1];

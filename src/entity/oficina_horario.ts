@@ -14,7 +14,6 @@ import { Oficina } from './Oficina';
 export class oficina_horario extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
-  @Column() authority_name: string;
   @Column() dia_semana: String;
   @Column() hora_inicio: String;
   @Column() hora_fin: String;

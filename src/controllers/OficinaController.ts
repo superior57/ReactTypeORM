@@ -64,6 +64,29 @@ class OficinaController {
     }
   };
 
+
+  static deleteOficinasByDoctor = async (req: Request, res: Response) => {
+    //Get the ID from the url
+    const id: number = parseInt(req.params.id);
+
+    const oficinaRepository = getRepository(Oficina);
+    try {
+      await oficinaRepository.findOneOrFail(id);
+    } catch (error) {
+      return res.status(404).send({ transaccion: false, mensaje: "Registro no encontrado", error });
+    }
+    try {
+      oficinaRepository.delete(id);
+    } catch (error) {
+      return res.status(404).send({ transaccion: false, mensaje: "Error al eliminar registro", error });
+    }
+
+    //After all send a 204 (no content, but accepted) response
+    return res.status(200).send({ transaccion: true, mensaje: 'Registro eliminado correctamente', error: '' })
+  };
+
+
+
   static getOficinasHorariosByDoctor = async (req: Request, res: Response) => {
     const id: number = parseInt(req.params.id);
     console.log('entrada /api/oficinas/getOficinasHorariosByDoctor', id);
@@ -122,16 +145,95 @@ class OficinaController {
     }
   };
 
-  static setHorariosByDoctor = async (req: Request, res: Response) => {
+  static setHorariosByOficina = async (req: Request, res: Response) => {
     const id: number = parseInt(req.params.id);
-    console.log('entrada /api/oficinas/setHorariosByDoctor', id);
-    // const oficina_horarioRepository = getRepository(oficina_horario);
+    console.log('entrada /api/oficinas/setHorariosByOficina', id);
 
-    try {
-    } catch (error) {
-      console.log('error /api/oficinas/setHorariosByDoctor', error);
-      res.status(404).send({ transaccion: false, mensaje: 'Error consultando', error: error });
+    const { data = [], doctor_id = '' } = req.body
+    if (data.length > 0) {
+      let Error = false;
+      data.forEach(async ({ dia_semana = '', hora_inicio = '', hora_fin = '' }) => {
+        if (!!hora_fin && !!hora_inicio && !!dia_semana) {
+          const newHorario = new oficina_horario();
+          newHorario.dia_semana = dia_semana
+          newHorario.hora_fin = hora_fin
+          newHorario.hora_inicio = hora_inicio
+          newHorario.oficina_id = id
+
+          const oficina_horarioRepository = getRepository(oficina_horario);
+
+          const errors = await validate(newHorario);
+          if (errors.length > 0) {
+            Error = true
+          } else {
+            try {
+              await oficina_horarioRepository.save(newHorario);
+            } catch (error) {
+              console.log('error /api/oficinas/setOficinasByDoctor', error, Error);
+              // res.status(409).send({ transaccion: false, mensaje: 'ocurrio un error guardando los datos, Intente nuevamente', error: error });
+            }
+          }
+        }
+      });
+      req.params.id = doctor_id
+      return OficinaController.getOficinasHorariosByDoctor(req, res)
     }
+    return res.status(409).send({ transaccion: false, mensaje: 'No existen datos, Intente nuevamente', error: data })
+  };
+
+  static updateHorario = async (req: Request, res: Response) => {
+    const id: number = parseInt(req.params.id);
+    console.log('entrada /api/oficinas/setHorariosByOficina', id);
+
+    const { dia_semana = '', hora_inicio = '', hora_fin = '' } = req.body
+
+    if (!!hora_fin && !!hora_inicio && !!dia_semana) {
+      let newHorario;
+      const oficina_horarioRepository = getRepository(oficina_horario);
+      try {
+        newHorario = await oficina_horarioRepository.findOneOrFail(id);
+      } catch (error) {
+        //If not found, send a 404 response
+        return res.status(404).send({ transaccion: false, mensaje: "registro no encontrado", error });
+      }
+      newHorario.dia_semana = dia_semana
+      newHorario.hora_fin = hora_fin
+      newHorario.hora_inicio = hora_inicio
+
+      const errors = await validate(newHorario);
+      if (errors.length > 0) {
+        return res.status(409).send({ transaccion: false, mensaje: 'Error al establecer datos', error: errors })
+      }
+      try {
+        await oficina_horarioRepository.save(newHorario);
+        return res.status(200).send({ transaccion: true, mensaje: 'Datos actualizados correctamente', error: '' })
+      } catch (error) {
+        console.log('error /api/oficinas/setOficinasByDoctor', error, Error);
+        return res.status(409).send({ transaccion: false, mensaje: 'ocurrio un error guardando los datos, Intente nuevamente', error: error });
+      }
+    }
+    return res.status(409).send({ transaccion: false, mensaje: 'Datos no guardados', error: '' });
+  }
+
+  static deleteHorario = async (req: Request, res: Response) => {
+    //Get the ID from the url
+    const id: number = parseInt(req.params.id);
+
+    const oficina_horarioRepository = getRepository(oficina_horario);
+    try {
+      await oficina_horarioRepository.findOneOrFail(id);
+    } catch (error) {
+      return res.status(404).send({ transaccion: false, mensaje: "Registro no encontrado", error });
+    }
+    try {
+      oficina_horarioRepository.delete(id);
+    } catch (error) {
+      return res.status(404).send({ transaccion: false, mensaje: "Error al eliminar registro", error });
+    }
+
+    //After all send a 204 (no content, but accepted) response
+    return res.status(200).send({ transaccion: true, mensaje: 'Registro eliminado correctamente', error: '' })
   };
 }
+
 export default OficinaController;
