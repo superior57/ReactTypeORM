@@ -34,7 +34,7 @@ class OficinaController {
     const oficinaRepository = getRepository(Oficina);
 
     let newOficina;
-    if (req.body.oficina_id) {
+    if (!!req.body.oficina_id) {
       const oficinaid: number = parseInt(req.body.id);
       try {
         newOficina = await oficinaRepository.findOneOrFail(oficinaid);
