@@ -23,12 +23,33 @@ class OficinaController {
       res.status(404).send({ transaccion: false, mensaje: 'Error consultando', error: error });
     }
   };
+
+
   static setOficinasByDoctor = async (req: Request, res: Response) => {
-    const id: number = parseInt(req.params.id);
+    const id: number = parseInt(req.params.id);   /// id del oficina
     //Get values from the body
 
     //Base entity no tiene constructores :(
-    const newOficina = new Oficina();
+
+    const oficinaRepository = getRepository(Oficina);
+
+    let newOficina;
+    if (req.body.oficina_id) {
+      const oficinaid: number = parseInt(req.body.id);
+      try {
+        newOficina = await oficinaRepository.findOneOrFail(oficinaid);
+      } catch (error) {
+        //If not found, send a 404 response
+        res.status(404).send({ transaccion: false, mensaje: "registro no encontrado", error });
+        return
+      }
+    }
+    else {
+      newOficina = new Oficina();
+    }
+
+    // let newOficina = new Oficina();
+    // newOficina=newLocal;
     newOficina.tiempo_por_cliente_minutos = req.body.tiempo_por_cliente_minutos;
     newOficina.costo_primera_consulta = req.body.costo_primera_consulta;
     newOficina.costo_consulta = req.body.costo_consulta;
@@ -40,11 +61,10 @@ class OficinaController {
     newOficina.referencias_fisicas = req.body.referencias_fisicas;
     newOficina.longitud = req.body.longitud;
     newOficina.latitud = req.body.latitud;
-    newOficina.doctor_id = req.body.doctor_id;
+    newOficina.doctor_id = id;
 
     console.log('entrada body /api/oficinas/setOficinasByDoctor', req.body);
 
-    const oficinaRepository = getRepository(Oficina);
 
     const errors = await validate(newOficina);
     if (errors.length > 0) {
@@ -58,10 +78,12 @@ class OficinaController {
       const oficinas = await oficinaRepository.createQueryBuilder('oficina').where('oficina.doctor_id = :id', { id }).getMany();
       console.log('salida /api/oficinas/setOficinasByDoctor', oficinas);
       res.status(200).send({ transaccion: true, data: oficinas });
+
     } catch (error) {
       console.log('error /api/oficinas/setOficinasByDoctor', error);
       res.status(409).send({ transaccion: false, mensaje: 'ocurrio un error guardando los datos, Intente nuevamente', error: error });
     }
+    res.status(200).send({ transaccion: true })
   };
 
 
@@ -180,6 +202,41 @@ class OficinaController {
     }
     return res.status(409).send({ transaccion: false, mensaje: 'No existen datos, Intente nuevamente', error: data })
   };
+  // static setHorariosByOficina = async (req: Request, res: Response) => {
+  //   const id: number = parseInt(req.params.id);
+  //   console.log('entrada /api/oficinas/setHorariosByOficina', id);
+
+  //   const { data = [], doctor_id = '' } = req.body
+  //   if (data.length > 0) {
+  //     let Error = false;
+  //     data.forEach(async ({ dia_semana = '', hora_inicio = '', hora_fin = '' }) => {
+  //       if (!!hora_fin && !!hora_inicio && !!dia_semana) {
+  //         const newHorario = new oficina_horario();
+  //         newHorario.dia_semana = dia_semana
+  //         newHorario.hora_fin = hora_fin
+  //         newHorario.hora_inicio = hora_inicio
+  //         newHorario.oficina_id = id
+
+  //         const oficina_horarioRepository = getRepository(oficina_horario);
+
+  //         const errors = await validate(newHorario);
+  //         if (errors.length > 0) {
+  //           Error = true
+  //         } else {
+  //           try {
+  //             await oficina_horarioRepository.save(newHorario);
+  //           } catch (error) {
+  //             console.log('error /api/oficinas/setOficinasByDoctor', error, Error);
+  //             // res.status(409).send({ transaccion: false, mensaje: 'ocurrio un error guardando los datos, Intente nuevamente', error: error });
+  //           }
+  //         }
+  //       }
+  //     });
+  //     req.params.id = doctor_id
+  //     return OficinaController.getOficinasHorariosByDoctor(req, res)
+  //   }
+  //   return res.status(409).send({ transaccion: false, mensaje: 'No existen datos, Intente nuevamente', error: data })
+  // };
 
   static updateHorario = async (req: Request, res: Response) => {
     const id: number = parseInt(req.params.id);
