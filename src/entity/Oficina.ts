@@ -6,9 +6,9 @@
  * @desc Oficinas por medico
  */
 
-import { Entity, Index, BaseEntity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, ManyToMany, JoinTable, OneToMany } from 'typeorm';
+import { Entity, Index, BaseEntity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { doctor as Doctor } from './doctor';
-import { Especializacion } from './Especializacion';
+// import { Especializacion } from './Especializacion';
 import { oficina_horario } from './oficina_horario';
 
 @Entity('oficina')
@@ -34,9 +34,10 @@ export class Oficina extends BaseEntity {
   @JoinColumn({ name: 'doctor_id' })
   medico: Doctor;
 
-  @ManyToMany(_type => Especializacion, especializacion => especializacion.oficinas)
-  @JoinTable({ name: 'oficina_especializaciones' })
-  especializaciones: Especializacion[];
+  // TODO: Está dando errores
+  // @ManyToMany(_type => Especializacion, especializacion => especializacion.oficinas)
+  // @JoinTable({ name: 'oficina_especializaciones' })
+  // especializaciones: Especializacion[];
 
   @OneToMany(_type => oficina_horario, oficina_horario => oficina_horario.oficina)
   horarios: oficina_horario[];

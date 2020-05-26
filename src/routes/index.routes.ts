@@ -21,6 +21,7 @@ import medicos from './medicos.routes';
 import citas from './citas.routes';
 import oficinas from './oficinas.routes';
 import cliente from './cliente.routes';
+import vademecum from './vademecum.routes';
 
 const routes = Router();
 
@@ -47,5 +48,6 @@ routes.use('/api/medicos', medicos);
 routes.use('/api/citas', citas);
 routes.use('/api/oficinas', oficinas);
 routes.use('/api/clientes', cliente);
+routes.use('/api/vademecum', vademecum);
 
 export default routes;
