@@ -35,7 +35,7 @@ class OficinaController {
 
     let newOficina;
     if (!!req.body.oficina_id) {
-      const oficinaid: number = parseInt(req.body.id);
+      const oficinaid: number = parseInt(req.body.oficina_id);
       try {
         newOficina = await oficinaRepository.findOneOrFail(oficinaid);
       } catch (error) {
@@ -106,8 +106,6 @@ class OficinaController {
     //After all send a 204 (no content, but accepted) response
     return res.status(200).send({ transaccion: true, mensaje: 'Registro eliminado correctamente', error: '' })
   };
-
-
 
   static getOficinasHorariosByDoctor = async (req: Request, res: Response) => {
     const id: number = parseInt(req.params.id);

@@ -75,12 +75,14 @@ class AuthController {
       }
 
       console.log(typeof role2, role2.length)
+
+
       // if (role2.length > 0) {
       //   const esMedico = role2.findIndex(i => i.authority_name === "ROLE_MED");
       //   if (esMedico > -1) {
-      medico = await doctorRepository.findOneOrFail({ where: { user: user } });
+      medico = await doctorRepository.findOneOrFail({ where: { user: user }, relations: ['especializaciones'] });
       res.send({ ...resp, transaccion: true, ...respuesta, medico });
-        // }
+      // }
       // }
 
       // const respuesta = { ...resp, transaccion: true, token: token, user: user, user_id: user.id }

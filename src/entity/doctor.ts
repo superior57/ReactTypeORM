@@ -6,11 +6,12 @@
  * @desc [description]
  */
 
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, Index, OneToMany, BaseEntity, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, Index, OneToMany, BaseEntity, JoinColumn, ManyToMany, JoinTable } from 'typeorm';
 // ,Index
 // import { Length } from "class-validator";
 import { med_user } from './med_user';
 import { Oficina } from './Oficina';
+import { Especializacion } from './Especializacion';
 
 @Entity()
 @Index(['id'], { unique: true })
@@ -37,4 +38,17 @@ export class doctor extends BaseEntity {
 
   @OneToMany(_type => Oficina, oficina => oficina.medico)
   oficinas: Oficina[];
+
+  @ManyToMany(() => Especializacion)
+  @JoinTable({
+    name: 'doctor_especializaciones',
+    joinColumns: [
+      { name: 'doctor_id' }
+    ],
+    inverseJoinColumns: [
+      { name: 'especializaciones_id' }
+    ]
+  })
+
+  especializaciones: Especializacion[]
 }

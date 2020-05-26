@@ -6,11 +6,11 @@
  * @desc [description]
  */
 
-import { Entity, PrimaryGeneratedColumn, Column, Index, ManyToMany, BaseEntity } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, Index, BaseEntity } from "typeorm";
 // ,Index
 // import { Length } from "class-validator";
 
-import { Oficina } from "./Oficina";
+// import { doctor } from "./doctor";
 
 @Entity('especializacion')
 @Index(["id"], { unique: true })
@@ -19,10 +19,7 @@ export class Especializacion extends BaseEntity {
   id: number;
   @Column() nombre: string;
 
-
-  @ManyToMany(_type => Oficina, oficina => oficina.especializaciones)
-  oficinas: Oficina[]
-
-
+  // @ManyToMany(_type => doctor, doctor => doctor.especializaciones)
+  // doctores: doctor[];
 
 }

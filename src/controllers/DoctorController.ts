@@ -20,7 +20,7 @@ class DoctorController {
     //     const userRepository = connection.getRepository(User);
     // const users = await userRepository.find({ relations: ["photos"] });
     try {
-      const oficinas = await medicoRepository.find({ relations: ['oficinas'], where: { id: id } });
+      const oficinas = await medicoRepository.find({ relations: ['oficinas', 'especializaciones'], where: { id: id } });
       console.log('Oficinas', oficinas);
       // const medico = await medicoRepository.findOneOrFail(id);
       res.status(404).send({ transaccion: true, data: oficinas });
