@@ -10,7 +10,11 @@ router.put('/:id([0-9]+)', [checkJwt], OficinaController.setOficinasByDoctor);
 router.delete('/:id([0-9]+)', [checkJwt], OficinaController.deleteOficinasByDoctor);
 
 //Rutas para oficina-horarios
-router.get('/horario-reserva/:id([0-9]+)', [checkJwt], OficinaController.getOficinasHorariosByDoctor);
+router.get(
+  '/horario-reserva/:id([0-9]+)',
+  [checkJwt],
+  OficinaController.getOficinasHorariosByDoctor
+);
 
 //Routas para horarios
 router.get('/horarios/:id([0-9]+)', [checkJwt], OficinaController.getHorariosByDoctor);
