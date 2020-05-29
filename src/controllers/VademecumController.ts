@@ -11,6 +11,7 @@ import { getRepository } from 'typeorm';
 
 import { vademecum } from '../entity/vademecum';
 import { validate } from 'class-validator';
+import { vademecum_med } from '../entity/vademecum_med';
 
 class VademecumController {
   static getValuesSearched = async (req: Request, res: Response) => {
@@ -47,14 +48,16 @@ class VademecumController {
     }
   };
 
+  //Se guarda o modificia en la tabla de vademecum_med
   static setMedicinaById = async (req: Request, res: Response) => {
-    const vademecumRepository = getRepository(vademecum);
+    const vademecumRepository = getRepository(vademecum_med);
     const id: number = parseInt(req.params.id); /// id de la medicina
 
-    console.log('entrada body /api/oficinas/setMedicinaById', req.params.id);
-    let newOficina: vademecum;
-    if (!req.params.id) {
+    console.log('entrada body /api/vademecum/setMedicinaById', req.params.id);
+    let newOficina: vademecum_med;
+    if (req.params.id) {
       try {
+        console.log('tiene medicina');
         newOficina = await vademecumRepository.findOneOrFail(id);
       } catch (error) {
         //If not found, send a 404 response
@@ -62,7 +65,8 @@ class VademecumController {
         return;
       }
     } else {
-      newOficina = new vademecum();
+      console.log('no tiene medicina');
+      newOficina = new vademecum_med();
     }
 
     newOficina.nombre = req.body.nombre;
@@ -72,9 +76,11 @@ class VademecumController {
     newOficina.dosificacion = req.body.dosificacion;
     newOficina.casa_comercial = req.body.casa_comercial;
     newOficina.contraindicaciones = req.body.contraindicaciones;
+    newOficina.notas = req.body.notas;
     newOficina.urlimagen = req.body.urlimagen;
+    newOficina.doctor_id = req.body.doctor_id;
 
-    console.log('entrada body /api/oficinas/setMedicinaById', req.body);
+    console.log('entrada body /api/vademecum/setMedicinaById', req.body);
 
     const errors = await validate(newOficina);
     if (errors.length > 0) {
@@ -86,24 +92,41 @@ class VademecumController {
       return;
     }
     try {
-      let medicina: vademecum | any;
-      if (!req.params.id) {
-        await vademecumRepository.save(newOficina);
-        medicina = await vademecumRepository.createQueryBuilder('v').where('v.id = :id', { id }).getOne();
-      } else {
-        medicina = await vademecumRepository.save(newOficina);
-      }
-      console.log('salida /api/vadecum/setMedicinaById', medicina);
-      res.status(200).send({ transaccion: true, data: medicina });
+      await vademecumRepository.save(newOficina);
+
+      //Devuelvo todas las medicinas del doctor
+      req.params.id = req.body.doctor_id;
+      return VademecumController.getVadecumByDoctor(req, res);
     } catch (error) {
-      console.log('error /api/oficinas/setMedicinaById', error);
+      console.log('error /api/vademecum/setMedicinaById', error);
       res.status(409).send({
         transaccion: false,
         mensaje: 'ocurrio un error guardando los datos, Intente nuevamente',
         error: error,
       });
     }
-    res.status(200).send({ transaccion: true });
+  };
+
+  //Obtiene todos los registros por doctor que tiene en su vadecum
+  static getVadecumByDoctor = async (req: Request, res: Response) => {
+    const id: number = parseInt(req.params.id);
+    console.log('entrada /api/oficinas/getvadecumByDoctor', id);
+
+    const vadecumRepository = getRepository(vademecum_med);
+
+    try {
+      const vadecum = await vadecumRepository
+        .createQueryBuilder('vadecum')
+        .where('vadecum.doctor_id = :id', { id })
+        .getMany();
+
+      console.log('salida /api/vadecum/getvadecumByDoctor', vadecum);
+
+      res.status(200).send({ transaccion: true, data: vadecum });
+    } catch (error) {
+      console.log('error /api/vadecum/getvadecumByDoctor', error);
+      res.status(404).send({ transaccion: false, mensaje: 'Error consultando', error: error });
+    }
   };
 }
 export default VademecumController;

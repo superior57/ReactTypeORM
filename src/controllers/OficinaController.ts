@@ -13,7 +13,10 @@ class OficinaController {
     const oficinaRepository = getRepository(Oficina);
 
     try {
-      const oficinas = await oficinaRepository.createQueryBuilder('oficina').where('oficina.doctor_id = :id', { id }).getMany();
+      const oficinas = await oficinaRepository
+        .createQueryBuilder('oficina')
+        .where('oficina.doctor_id = :id', { id })
+        .getMany();
 
       console.log('salida /api/oficinas/getOficinasByDoctor', oficinas);
 
@@ -24,9 +27,8 @@ class OficinaController {
     }
   };
 
-
   static setOficinasByDoctor = async (req: Request, res: Response) => {
-    const id: number = parseInt(req.params.id);   /// id del oficina
+    const id: number = parseInt(req.params.id); /// id del oficina
     //Get values from the body
 
     //Base entity no tiene constructores :(
@@ -40,11 +42,10 @@ class OficinaController {
         newOficina = await oficinaRepository.findOneOrFail(oficinaid);
       } catch (error) {
         //If not found, send a 404 response
-        res.status(404).send({ transaccion: false, mensaje: "registro no encontrado", error });
-        return
+        res.status(404).send({ transaccion: false, mensaje: 'registro no encontrado', error });
+        return;
       }
-    }
-    else {
+    } else {
       newOficina = new Oficina();
     }
 
@@ -65,7 +66,6 @@ class OficinaController {
 
     console.log('entrada body /api/oficinas/setOficinasByDoctor', req.body);
 
-
     const errors = await validate(newOficina);
     if (errors.length > 0) {
       res.status(400).send(errors);
@@ -75,17 +75,22 @@ class OficinaController {
       await oficinaRepository.save(newOficina);
 
       //TODO: ver si se puede reutilizar la función getOficinasByDoctor para no repetir código
-      const oficinas = await oficinaRepository.createQueryBuilder('oficina').where('oficina.doctor_id = :id', { id }).getMany();
+      const oficinas = await oficinaRepository
+        .createQueryBuilder('oficina')
+        .where('oficina.doctor_id = :id', { id })
+        .getMany();
       console.log('salida /api/oficinas/setOficinasByDoctor', oficinas);
       res.status(200).send({ transaccion: true, data: oficinas });
-
     } catch (error) {
       console.log('error /api/oficinas/setOficinasByDoctor', error);
-      res.status(409).send({ transaccion: false, mensaje: 'ocurrio un error guardando los datos, Intente nuevamente', error: error });
+      res.status(409).send({
+        transaccion: false,
+        mensaje: 'ocurrio un error guardando los datos, Intente nuevamente',
+        error: error,
+      });
     }
-    res.status(200).send({ transaccion: true })
+    res.status(200).send({ transaccion: true });
   };
-
 
   static deleteOficinasByDoctor = async (req: Request, res: Response) => {
     //Get the ID from the url
@@ -95,16 +100,18 @@ class OficinaController {
     try {
       await oficinaRepository.findOneOrFail(id);
     } catch (error) {
-      return res.status(404).send({ transaccion: false, mensaje: "Registro no encontrado", error });
+      return res.status(404).send({ transaccion: false, mensaje: 'Registro no encontrado', error });
     }
     try {
       oficinaRepository.delete(id);
     } catch (error) {
-      return res.status(404).send({ transaccion: false, mensaje: "Error al eliminar registro", error });
+      return res.status(404).send({ transaccion: false, mensaje: 'Error al eliminar registro', error });
     }
 
     //After all send a 204 (no content, but accepted) response
-    return res.status(200).send({ transaccion: true, mensaje: 'Registro eliminado correctamente', error: '' })
+    return res
+      .status(200)
+      .send({ transaccion: true, mensaje: 'Registro eliminado correctamente', error: '' });
   };
 
   static getOficinasHorariosByDoctor = async (req: Request, res: Response) => {
@@ -126,7 +133,12 @@ class OficinaController {
       const reservas = await reservaRepository
         .createQueryBuilder('r')
         .where(qb => {
-          const subQuery = qb.subQuery().select('oficina.id').from(Oficina, 'oficina').where('oficina.doctor_id = :id').getQuery();
+          const subQuery = qb
+            .subQuery()
+            .select('oficina.id')
+            .from(Oficina, 'oficina')
+            .where('oficina.doctor_id = :id')
+            .getQuery();
           return 'r.oficina_id IN ' + subQuery;
         })
         .setParameter('id', id)
@@ -152,7 +164,13 @@ class OficinaController {
       const horarios = await oficina_horarioRepository
         .createQueryBuilder('horario')
         .innerJoinAndSelect('oficina', 'o', 'horario.oficina_id = o.id')
-        .select(['horario.id', 'horario.oficina_id', 'horario.dia_semana', 'horario.hora_inicio', 'horario.hora_fin'])
+        .select([
+          'horario.id',
+          'horario.oficina_id',
+          'horario.dia_semana',
+          'horario.hora_inicio',
+          'horario.hora_fin',
+        ])
         .where('o.doctor_id = :id', { id })
         .getMany();
 
@@ -169,22 +187,22 @@ class OficinaController {
     const id: number = parseInt(req.params.id);
     console.log('entrada /api/oficinas/setHorariosByOficina', id);
 
-    const { data = [], doctor_id = '' } = req.body
+    const { data = [], doctor_id = '' } = req.body;
     if (data.length > 0) {
       let Error = false;
       data.forEach(async ({ dia_semana = '', hora_inicio = '', hora_fin = '' }) => {
         if (!!hora_fin && !!hora_inicio && !!dia_semana) {
           const newHorario = new oficina_horario();
-          newHorario.dia_semana = dia_semana
-          newHorario.hora_fin = hora_fin
-          newHorario.hora_inicio = hora_inicio
-          newHorario.oficina_id = id
+          newHorario.dia_semana = dia_semana;
+          newHorario.hora_fin = hora_fin;
+          newHorario.hora_inicio = hora_inicio;
+          newHorario.oficina_id = id;
 
           const oficina_horarioRepository = getRepository(oficina_horario);
 
           const errors = await validate(newHorario);
           if (errors.length > 0) {
-            Error = true
+            Error = true;
           } else {
             try {
               await oficina_horarioRepository.save(newHorario);
@@ -195,11 +213,14 @@ class OficinaController {
           }
         }
       });
-      req.params.id = doctor_id
-      return OficinaController.getOficinasHorariosByDoctor(req, res)
+      req.params.id = doctor_id;
+      return OficinaController.getHorariosByDoctor(req, res);
     }
-    return res.status(409).send({ transaccion: false, mensaje: 'No existen datos, Intente nuevamente', error: data })
+    return res
+      .status(409)
+      .send({ transaccion: false, mensaje: 'No existen datos, Intente nuevamente', error: data });
   };
+
   // static setHorariosByOficina = async (req: Request, res: Response) => {
   //   const id: number = parseInt(req.params.id);
   //   console.log('entrada /api/oficinas/setHorariosByOficina', id);
@@ -240,7 +261,7 @@ class OficinaController {
     const id: number = parseInt(req.params.id);
     console.log('entrada /api/oficinas/setHorariosByOficina', id);
 
-    const { dia_semana = '', hora_inicio = '', hora_fin = '' } = req.body
+    const { dia_semana = '', hora_inicio = '', hora_fin = '' } = req.body;
 
     if (!!hora_fin && !!hora_inicio && !!dia_semana) {
       let newHorario;
@@ -249,26 +270,34 @@ class OficinaController {
         newHorario = await oficina_horarioRepository.findOneOrFail(id);
       } catch (error) {
         //If not found, send a 404 response
-        return res.status(404).send({ transaccion: false, mensaje: "registro no encontrado", error });
+        return res.status(404).send({ transaccion: false, mensaje: 'registro no encontrado', error });
       }
-      newHorario.dia_semana = dia_semana
-      newHorario.hora_fin = hora_fin
-      newHorario.hora_inicio = hora_inicio
+      newHorario.dia_semana = dia_semana;
+      newHorario.hora_fin = hora_fin;
+      newHorario.hora_inicio = hora_inicio;
 
       const errors = await validate(newHorario);
       if (errors.length > 0) {
-        return res.status(409).send({ transaccion: false, mensaje: 'Error al establecer datos', error: errors })
+        return res
+          .status(409)
+          .send({ transaccion: false, mensaje: 'Error al establecer datos', error: errors });
       }
       try {
         await oficina_horarioRepository.save(newHorario);
-        return res.status(200).send({ transaccion: true, mensaje: 'Datos actualizados correctamente', error: '' })
+        return res
+          .status(200)
+          .send({ transaccion: true, mensaje: 'Datos actualizados correctamente', error: '' });
       } catch (error) {
         console.log('error /api/oficinas/setOficinasByDoctor', error, Error);
-        return res.status(409).send({ transaccion: false, mensaje: 'ocurrio un error guardando los datos, Intente nuevamente', error: error });
+        return res.status(409).send({
+          transaccion: false,
+          mensaje: 'ocurrio un error guardando los datos, Intente nuevamente',
+          error: error,
+        });
       }
     }
     return res.status(409).send({ transaccion: false, mensaje: 'Datos no guardados', error: '' });
-  }
+  };
 
   static deleteHorario = async (req: Request, res: Response) => {
     //Get the ID from the url
@@ -278,16 +307,18 @@ class OficinaController {
     try {
       await oficina_horarioRepository.findOneOrFail(id);
     } catch (error) {
-      return res.status(404).send({ transaccion: false, mensaje: "Registro no encontrado", error });
+      return res.status(404).send({ transaccion: false, mensaje: 'Registro no encontrado', error });
     }
     try {
       oficina_horarioRepository.delete(id);
     } catch (error) {
-      return res.status(404).send({ transaccion: false, mensaje: "Error al eliminar registro", error });
+      return res.status(404).send({ transaccion: false, mensaje: 'Error al eliminar registro', error });
     }
 
     //After all send a 204 (no content, but accepted) response
-    return res.status(200).send({ transaccion: true, mensaje: 'Registro eliminado correctamente', error: '' })
+    return res
+      .status(200)
+      .send({ transaccion: true, mensaje: 'Registro eliminado correctamente', error: '' });
   };
 }
 

@@ -20,7 +20,10 @@ class DoctorController {
     //     const userRepository = connection.getRepository(User);
     // const users = await userRepository.find({ relations: ["photos"] });
     try {
-      const oficinas = await medicoRepository.find({ relations: ['oficinas', 'especializaciones'], where: { id: id } });
+      const oficinas = await medicoRepository.find({
+        relations: ['oficinas', 'especializaciones'],
+        where: { id: id },
+      });
       console.log('Oficinas', oficinas);
       // const medico = await medicoRepository.findOneOrFail(id);
       res.status(404).send({ transaccion: true, data: oficinas });
@@ -43,7 +46,16 @@ class DoctorController {
       practica_desde = '',
     } = req.body;
 
-    if (!(!!nombres && apellidos && !!titulo_honorifico && !!declaracion_profesional && !!numero_telefono && !!practica_desde)) {
+    if (
+      !(
+        !!nombres &&
+        apellidos &&
+        !!titulo_honorifico &&
+        !!declaracion_profesional &&
+        !!numero_telefono &&
+        !!practica_desde
+      )
+    ) {
       res.status(404).send({ transaccion: false, mensaje: 'Debe enviar todos los campos', error: '' });
     }
     console.log('31 ingresa ', req.body);
@@ -77,7 +89,14 @@ class DoctorController {
       medico = await medicoRepository.save(medico);
     } catch (e) {
       console.log(e);
-      res.status(409).send({ transaccion: false, mensaje: 'ocurrio un error guardando los datos, Intente nuevamente', error: e, medico });
+      res
+        .status(409)
+        .send({
+          transaccion: false,
+          mensaje: 'ocurrio un error guardando los datos, Intente nuevamente',
+          error: e,
+          medico,
+        });
       return;
     }
     //After all send a 204 (no content, but accepted) response
