@@ -9,6 +9,7 @@ import { Request, Response } from 'express';
 import { getRepository } from 'typeorm';
 import { validate } from 'class-validator';
 import { doctor } from '../entity/doctor';
+import { Especializacion } from '../entity/Especializacion';
 
 class DoctorController {
   static getOneById = async (req: Request, res: Response) => {
@@ -44,6 +45,7 @@ class DoctorController {
       declaracion_profesional = '',
       numero_telefono = '',
       practica_desde = '',
+      especializaciones = [],
     } = req.body;
 
     if (
@@ -79,6 +81,20 @@ class DoctorController {
     medico.numero_telefono = numero_telefono;
     medico.practica_desde = practica_desde;
 
+    const especializacionesRepository = getRepository(Especializacion);
+    let array_especializaciones: Array<Especializacion | any> = [];
+
+    try {
+      for (let index = 0; index < especializaciones.length; index++) {
+        const unaEspecialidad = await especializacionesRepository.findOne(parseInt(especializaciones[index]));
+        array_especializaciones.push(unaEspecialidad);
+      }
+      medico.especializaciones = array_especializaciones;
+      console.log('especializaciones', array_especializaciones);
+    } catch (error) {
+      console.log('error especializaciones', error);
+    }
+
     const errors = await validate(medico);
     if (errors.length > 0) {
       res.status(404).send({ transaccion: false, mensaje: 'Debe enviar todos los campos', error: errors });
@@ -89,14 +105,12 @@ class DoctorController {
       medico = await medicoRepository.save(medico);
     } catch (e) {
       console.log(e);
-      res
-        .status(409)
-        .send({
-          transaccion: false,
-          mensaje: 'ocurrio un error guardando los datos, Intente nuevamente',
-          error: e,
-          medico,
-        });
+      res.status(409).send({
+        transaccion: false,
+        mensaje: 'ocurrio un error guardando los datos, Intente nuevamente',
+        error: e,
+        medico,
+      });
       return;
     }
     //After all send a 204 (no content, but accepted) response
