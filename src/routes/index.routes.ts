@@ -16,6 +16,7 @@ import oficinas from './oficinas.routes';
 import cliente from './cliente.routes';
 import vademecum from './vademecum.routes';
 import especializacion from './especializacion.routes';
+import recetas from './recetas.routes';
 
 const routes = Router();
 
@@ -27,5 +28,6 @@ routes.use('/api/oficinas', oficinas);
 routes.use('/api/clientes', cliente);
 routes.use('/api/vademecum', vademecum);
 routes.use('/api/especializacion', especializacion);
+routes.use('/api/recetas', recetas);
 
 export default routes;
