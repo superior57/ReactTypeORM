@@ -11,6 +11,6 @@ export class receta extends BaseEntity {
   @Column() doctor_id: number;
   @Column() mostrar_cabecera: boolean;
 
-  @OneToMany(_type => recetaDetalle, detalle => detalle)
+  @OneToMany(_type => recetaDetalle, detalle => detalle.cabecera)
   detalle: recetaDetalle[];
 }

@@ -15,4 +15,7 @@ const router = Router();
 //Obtiene las recetas por cliente y doctor
 router.get('/:cliente([0-9]+)/:doctor([0-9]+)', [checkJwt], RecetaController.getRecetaClienteDoctor);
 
+//Agrega una receta al cliente y doctor
+router.put('/:cliente([0-9]+)/:doctor([0-9]+)', [checkJwt], RecetaController.setRecetaClienteDoctor);
+
 export default router;
