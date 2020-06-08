@@ -107,9 +107,8 @@ class DoctorController {
       console.log(e);
       res.status(409).send({
         transaccion: false,
-        mensaje: 'ocurrio un error guardando los datos, Intente nuevamente',
+        mensaje: 'Ocurrio un error guardando los datos, Intente nuevamente',
         error: e,
-        medico,
       });
       return;
     }

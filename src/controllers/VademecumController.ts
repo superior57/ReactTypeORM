@@ -54,11 +54,11 @@ class VademecumController {
     const id: number = parseInt(req.params.id); /// id de la medicina
 
     console.log('entrada body /api/vademecum/setMedicinaById', req.params.id);
-    let newOficina: vademecum_med;
+    let newOficina: vademecum_med | undefined;
     if (req.params.id) {
       try {
         console.log('tiene medicina');
-        newOficina = await vademecumRepository.findOneOrFail(id);
+        newOficina = await vademecumRepository.findOne(id);
       } catch (error) {
         //If not found, send a 404 response
         res.status(404).send({ transaccion: false, mensaje: 'registro no encontrado', error });
@@ -69,20 +69,20 @@ class VademecumController {
       newOficina = new vademecum_med();
     }
 
-    newOficina.nombre = req.body.nombre;
-    newOficina.composicion = req.body.composicion;
-    newOficina.funcion = req.body.funcion;
-    newOficina.presentacion = req.body.presentacion;
-    newOficina.dosificacion = req.body.dosificacion;
-    newOficina.casa_comercial = req.body.casa_comercial;
-    newOficina.contraindicaciones = req.body.contraindicaciones;
-    newOficina.notas = req.body.notas;
-    newOficina.urlimagen = req.body.urlimagen;
-    newOficina.doctor_id = req.body.doctor_id;
+    newOficina!.nombre = req.body.nombre;
+    newOficina!.composicion = req.body.composicion;
+    newOficina!.funcion = req.body.funcion;
+    newOficina!.presentacion = req.body.presentacion;
+    newOficina!.dosificacion = req.body.dosificacion;
+    newOficina!.casa_comercial = req.body.casa_comercial;
+    newOficina!.contraindicaciones = req.body.contraindicaciones;
+    newOficina!.notas = req.body.notas;
+    newOficina!.urlimagen = req.body.urlimagen;
+    newOficina!.doctor_id = req.body.doctor_id;
 
     console.log('entrada body /api/vademecum/setMedicinaById', req.body);
 
-    const errors = await validate(newOficina);
+    const errors = await validate(newOficina!);
     if (errors.length > 0) {
       res.status(400).send({
         transaccion: false,
@@ -92,7 +92,7 @@ class VademecumController {
       return;
     }
     try {
-      await vademecumRepository.save(newOficina);
+      await vademecumRepository.save(newOficina!);
 
       //Devuelvo todas las medicinas del doctor
       req.params.id = req.body.doctor_id;

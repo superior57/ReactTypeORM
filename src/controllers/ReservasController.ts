@@ -26,7 +26,13 @@ class ReservasController {
         .innerJoinAndSelect('oficina', 'o', 'r.oficina_id=o.id')
         .innerJoinAndSelect('doctor', 'd', 'o.doctor_id = d.id')
         .innerJoinAndSelect('cliente', 'c', 'r.cliente_id = c.id')
-        .select(['r', 'c.cedula_identidad identidad', 'c.apellidos apellidos', 'c.nombres nombres', 'o.id oficina_id'])
+        .select([
+          'r',
+          'c.cedula_identidad identidad',
+          'c.apellidos apellidos',
+          'c.nombres nombres',
+          'o.id oficina_id',
+        ])
         .where('d.id = :id', { id })
         .getRawMany();
 
@@ -51,7 +57,16 @@ class ReservasController {
       practica_desde = '',
     } = req.body;
 
-    if (!(!!nombres && apellidos && !!titulo_honorifico && !!declaracion_profesional && !!numero_telefono && !!practica_desde)) {
+    if (
+      !(
+        !!nombres &&
+        apellidos &&
+        !!titulo_honorifico &&
+        !!declaracion_profesional &&
+        !!numero_telefono &&
+        !!practica_desde
+      )
+    ) {
       res.status(200).send({ transaccion: false, mensaje: 'Debe enviar todos los campos', error: '' });
     }
     console.log('31 ingresa ', req.body);
@@ -85,7 +100,12 @@ class ReservasController {
       medico = await medicoRepository.save(medico);
     } catch (e) {
       console.log(e);
-      res.status(409).send({ transaccion: false, mensaje: 'ocurrio un error guardando los datos, Intente nuevamente', error: e, medico });
+      res.status(409).send({
+        transaccion: false,
+        mensaje: 'ocurrio un error guardando los datos, Intente nuevamente',
+        error: e,
+        medico,
+      });
       return;
     }
     //After all send a 204 (no content, but accepted) response

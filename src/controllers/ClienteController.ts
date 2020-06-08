@@ -18,12 +18,18 @@ class ClienteController {
       console.log('Entrada /api/clientes/getOneById', id);
       const clienteRepository = getRepository(Cliente);
 
-      const cliente = await clienteRepository.findOneOrFail({
+      const cliente = await clienteRepository.findOne({
         select: ['id', 'nombres', 'apellidos', 'cedula_identidad', 'sexo', 'telefono'],
         where: { cedula_identidad: id },
       });
-      console.log('Salida /api/clientes/getOneById', cliente);
-      res.status(200).send({ transaccion: true, data: cliente });
+      if (cliente !== undefined) {
+        res.status(200).send({ transaccion: true, data: cliente });
+      } else {
+        res.status(404).send({
+          transaccion: false,
+          mensaje: 'No existe el cliente, verifíque el número de identificación',
+        });
+      }
     } catch (error) {
       res.status(404).send({ transaccion: false, mensaje: 'Error consultando', error: error });
     }
