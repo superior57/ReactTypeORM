@@ -1,11 +1,11 @@
-import { Router } from "express";
-import { checkJwt } from "../middlewares/checkJwt";
+import { Router } from 'express';
+import { checkJwt } from '../middlewares/checkJwt';
 
-import Reservas  from '../controllers/ReservasController'
+import Reservas from '../controllers/ReservasController';
 
 const router = Router();
-//Login route
-router.get("/:id([0-9]+)", [checkJwt], Reservas.getReservasbyMedico);
-// router.patch("/:id([0-9]+)", [checkJwt], DoctorController.editMedico);
+
+router.get('/:id([0-9]+)', [checkJwt], Reservas.getReservasbyMedico);
+router.put('/:id([0-9]+)', [checkJwt], Reservas.setReservaByOficina);
 
 export default router;

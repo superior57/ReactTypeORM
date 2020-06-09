@@ -11,6 +11,7 @@ import { validate } from 'class-validator';
 import { doctor } from '../entity/doctor';
 
 import { Reservas } from '../entity/Reservas';
+
 // import { Oficina } from '../entity/Oficina';
 // import { Cliente } from '../entity/Cliente'
 
@@ -33,15 +34,57 @@ class ReservasController {
           'c.nombres nombres',
           'o.id oficina_id',
         ])
+        .orderBy('r.inicio', 'ASC')
         .where('d.id = :id', { id })
         .getRawMany();
 
       console.log('salida /api/oficinas/getHorariosByDoctor', reserva, id);
       res.status(200).send({ transaccion: true, data: reserva });
     } catch (error) {
-      res.status(200).send({ transaccion: false, mensaje: 'Error consultando', error: error });
+      res.status(400).send({ transaccion: false, mensaje: 'Error consultando', error: error });
     }
   };
+
+  static setReservaByOficina = async (req: Request, res: Response) => {
+    const id: number = parseInt(req.params.id);
+    const {
+      inicio,
+      fin,
+      fecha_reserva,
+      disponible,
+      razon_no_disponibilidad,
+      canal_reserva,
+      estado_reserva,
+      phone_number,
+      especializacion_id,
+      cliente_id,
+      doctor_id,
+    } = req.body;
+    console.log('Entrada reserva', req.body);
+    const reservasRepository = getRepository(Reservas);
+    let nuevaReserva: Reservas = new Reservas();
+    try {
+      nuevaReserva.inicio = inicio;
+      nuevaReserva.fin = fin;
+      nuevaReserva.fecha_reserva = fecha_reserva;
+      nuevaReserva.disponible = disponible;
+      nuevaReserva.razon_no_disponibilidad = razon_no_disponibilidad;
+      nuevaReserva.canal_reserva = canal_reserva;
+      nuevaReserva.estado_reserva = estado_reserva;
+      nuevaReserva.phone_number = phone_number;
+      nuevaReserva.especializacion_id = especializacion_id;
+      nuevaReserva.cliente_id = cliente_id;
+      nuevaReserva.oficina_id = id;
+
+      await reservasRepository.save(nuevaReserva);
+
+      req.params.id = doctor_id;
+      return ReservasController.getReservasbyMedico(req, res);
+    } catch (error) {
+      res.status(400).send({ transaccion: false, mensaje: 'Error guardando los datos', error: error });
+    }
+  };
+
   static editMedico = async (req: Request, res: Response) => {
     //Get the ID from the url
     const id = parseInt(req.params.id);
