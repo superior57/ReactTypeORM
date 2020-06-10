@@ -35,6 +35,7 @@ export class doctor extends BaseEntity {
 
   @Column() nombres: string;
   @Column() apellidos: string;
+  @Column() msp: string;
 
   @Column({ nullable: true, type: 'varchar' }) declaracion_profesional: string;
 

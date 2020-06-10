@@ -28,8 +28,8 @@ class RecetaController {
     const cliente: number = parseInt(req.params.cliente);
     const doctor: number = parseInt(req.params.doctor);
     //detalles tiene que ser un array de objetos
-    const detalles = req.body;
-
+    const { detalles, mediciones } = req.body;
+    console.log('BODY', req.body);
     const recetaRepository = getRepository(receta);
     const detalleRepository = getRepository(recetaDetalle);
     try {
@@ -38,6 +38,10 @@ class RecetaController {
       cabecera.doctor_id = doctor;
       cabecera.created_date = new Date();
       cabecera.mostrar_cabecera = false;
+      cabecera.peso = mediciones.peso;
+      cabecera.talla = mediciones.talla;
+      cabecera.cie10 = mediciones.cie;
+      cabecera.imc = mediciones.imc;
       await recetaRepository.save(cabecera);
 
       // con esto espera a que guarde todos los detalles

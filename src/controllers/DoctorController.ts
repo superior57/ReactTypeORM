@@ -46,6 +46,7 @@ class DoctorController {
       numero_telefono = '',
       practica_desde = '',
       especializaciones = [],
+      msp = '',
     } = req.body;
 
     if (
@@ -55,7 +56,8 @@ class DoctorController {
         !!titulo_honorifico &&
         !!declaracion_profesional &&
         !!numero_telefono &&
-        !!practica_desde
+        !!practica_desde &&
+        !!msp
       )
     ) {
       res.status(404).send({ transaccion: false, mensaje: 'Debe enviar todos los campos', error: '' });
@@ -80,6 +82,7 @@ class DoctorController {
     medico.declaracion_profesional = declaracion_profesional;
     medico.numero_telefono = numero_telefono;
     medico.practica_desde = practica_desde;
+    medico.msp = msp;
 
     const especializacionesRepository = getRepository(Especializacion);
     let array_especializaciones: Array<Especializacion | any> = [];
