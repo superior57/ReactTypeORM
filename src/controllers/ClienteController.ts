@@ -9,7 +9,7 @@
 import { Request, Response } from 'express';
 import { getRepository } from 'typeorm';
 
-import { Cliente } from '../entity';
+import { Cliente } from '../entity/Cliente';
 
 class ClienteController {
   static getOneById = async (req: Request, res: Response) => {
