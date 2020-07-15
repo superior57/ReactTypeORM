@@ -27,40 +27,46 @@
 
 // }).catch(error => console.log(error));
 
-import 'reflect-metadata';
-import { createConnection } from 'typeorm';
-import express from 'express';
-import helmet from 'helmet';
-import { ApolloServer } from 'apollo-server-express';
+import "reflect-metadata";
+import { createConnection, Connection } from "typeorm";
+import express from "express";
+import helmet from "helmet";
+import { ApolloServer } from "apollo-server-express";
 
-import { typeDefs } from './typeDefs/typeDefs';
-import { resolvers } from './resolvers/resolvers';
-import morgan from 'morgan';
-import cors from 'cors';
-import misRutas from './routes/index.routes';
+import { typeDefs } from "./typeDefs/typeDefs";
+import { resolvers } from "./resolvers/resolvers";
+import morgan from "morgan";
+import cors from "cors";
+import misRutas from "./routes/index.routes";
 
 const startServer = async () => {
-  const server = new ApolloServer({ typeDefs, resolvers });
-  await createConnection();
+  try {
+    const server = new ApolloServer({ typeDefs, resolvers });
+    console.log("antes de la coneccion");
+    const connection: Connection = await createConnection();
+    console.log("despues de la coneccion", connection);
 
-  const app = express();
+    const app = express();
+    console.log("antes de iniciar11");
+    //midlewars
+    server.applyMiddleware({ app });
+    app.use(cors());
+    app.use(helmet());
+    app.use(morgan("dev"));
+    app.use(express.json());
 
-  //midlewars
-  server.applyMiddleware({ app });
-  app.use(cors());
-  app.use(helmet());
-  app.use(morgan('dev'));
-  app.use(express.json());
+    // routes
+    app.use("/", misRutas);
+    console.log("antes de iniciar");
 
-  // routes
-  app.use('/', misRutas);
-
-  app.listen(
-    {
-      port: 4000,
-    },
-    () => console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`)
-  );
+    app.listen({ port: 4000 }, () =>
+      console.log(
+        `🚀 Server ready at http://localhost:4000${server.graphqlPath}`
+      )
+    );
+  } catch (error) {
+    console.log("Servidor no iniciado :", error);
+  }
 };
-
+console.log("antes de iniciar000");
 startServer();

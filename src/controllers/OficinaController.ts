@@ -1,29 +1,33 @@
-import { Request, Response } from 'express';
-import { getRepository } from 'typeorm';
-import { Oficina } from '../entity/Oficina';
-import { oficina_horario } from '../entity/oficina_horario';
-import { validate } from 'class-validator';
-import { Reservas } from '../entity/Reservas';
+import { Request, Response } from "express";
+import { getRepository } from "typeorm";
+import { Oficina } from "../entity/Oficina";
+import { oficina_horario } from "../entity/oficina_horario";
+import { validate } from "class-validator";
+import { Reservas } from "../entity/Reservas";
 
 class OficinaController {
   static getOficinasByDoctor = async (req: Request, res: Response) => {
     const id: number = parseInt(req.params.id);
-    console.log('entrada /api/oficinas/getOficinasByDoctor', id);
+    console.log("entrada /api/oficinas/getOficinasByDoctor", id);
 
     const oficinaRepository = getRepository(Oficina);
 
     try {
       const oficinas = await oficinaRepository
-        .createQueryBuilder('oficina')
-        .where('oficina.doctor_id = :id', { id })
+        .createQueryBuilder("oficina")
+        .where("oficina.doctor_id = :id", { id })
         .getMany();
 
-      console.log('salida /api/oficinas/getOficinasByDoctor', oficinas);
+      console.log("salida /api/oficinas/getOficinasByDoctor", oficinas);
 
       res.status(200).send({ transaccion: true, data: oficinas });
     } catch (error) {
-      console.log('error /api/oficinas/getOficinasByDoctor', error);
-      res.status(404).send({ transaccion: false, mensaje: 'Error consultando', error: error });
+      console.log("error /api/oficinas/getOficinasByDoctor", error);
+      res.status(404).send({
+        transaccion: false,
+        mensaje: "Error consultando",
+        error: error,
+      });
     }
   };
 
@@ -42,7 +46,11 @@ class OficinaController {
         newOficina = await oficinaRepository.findOneOrFail(oficinaid);
       } catch (error) {
         //If not found, send a 404 response
-        res.status(404).send({ transaccion: false, mensaje: 'registro no encontrado', error });
+        res.status(404).send({
+          transaccion: false,
+          mensaje: "registro no encontrado",
+          error,
+        });
         return;
       }
     } else {
@@ -64,7 +72,7 @@ class OficinaController {
     newOficina.latitud = req.body.latitud;
     newOficina.doctor_id = id;
 
-    console.log('entrada body /api/oficinas/setOficinasByDoctor', req.body);
+    console.log("entrada body /api/oficinas/setOficinasByDoctor", req.body);
 
     const errors = await validate(newOficina);
     if (errors.length > 0) {
@@ -76,16 +84,16 @@ class OficinaController {
 
       //TODO: ver si se puede reutilizar la función getOficinasByDoctor para no repetir código
       const oficinas = await oficinaRepository
-        .createQueryBuilder('oficina')
-        .where('oficina.doctor_id = :id', { id })
+        .createQueryBuilder("oficina")
+        .where("oficina.doctor_id = :id", { id })
         .getMany();
-      console.log('salida /api/oficinas/setOficinasByDoctor', oficinas);
+      console.log("salida /api/oficinas/setOficinasByDoctor", oficinas);
       res.status(200).send({ transaccion: true, data: oficinas });
     } catch (error) {
-      console.log('error /api/oficinas/setOficinasByDoctor', error);
+      console.log("error /api/oficinas/setOficinasByDoctor", error);
       res.status(409).send({
         transaccion: false,
-        mensaje: 'ocurrio un error guardando los datos, Intente nuevamente',
+        mensaje: "ocurrio un error guardando los datos, Intente nuevamente",
         error: error,
       });
     }
@@ -100,23 +108,31 @@ class OficinaController {
     try {
       await oficinaRepository.findOneOrFail(id);
     } catch (error) {
-      return res.status(404).send({ transaccion: false, mensaje: 'Registro no encontrado', error });
+      return res
+        .status(404)
+        .send({ transaccion: false, mensaje: "Registro no encontrado", error });
     }
     try {
       oficinaRepository.delete(id);
     } catch (error) {
-      return res.status(404).send({ transaccion: false, mensaje: 'Error al eliminar registro', error });
+      return res.status(404).send({
+        transaccion: false,
+        mensaje: "Error al eliminar registro",
+        error,
+      });
     }
 
     //After all send a 204 (no content, but accepted) response
-    return res
-      .status(200)
-      .send({ transaccion: true, mensaje: 'Registro eliminado correctamente', error: '' });
+    return res.status(200).send({
+      transaccion: true,
+      mensaje: "Registro eliminado correctamente",
+      error: "",
+    });
   };
 
   static getOficinasHorariosByDoctor = async (req: Request, res: Response) => {
     const id: number = parseInt(req.params.id);
-    console.log('entrada /api/oficinas/getOficinasHorariosByDoctor', id);
+    console.log("entrada /api/oficinas/getOficinasHorariosByDoctor", id);
 
     const oficinaRepository = getRepository(oficina_horario);
     const reservaRepository = getRepository(Reservas);
@@ -124,101 +140,133 @@ class OficinaController {
     try {
       //Obtiene los horarios de cada oficina
       let horarios_oficina = await oficinaRepository
-        .createQueryBuilder('h')
-        .innerJoin('oficina', 'o', 'h.oficina_id = o.id')
-        .select(['h.id', 'h.oficina_id', 'h.dia_semana', 'h.hora_inicio', 'h.hora_fin', 'o'])
-        .where('o.doctor_id = :id', { id })
+        .createQueryBuilder("h")
+        .innerJoin("oficina", "o", "h.oficina_id = o.id")
+        .select([
+          "h.id",
+          "h.oficina_id",
+          "h.dia_semana",
+          "h.hora_inicio",
+          "h.hora_fin",
+          "o",
+        ])
+        .orderBy("h.id", "ASC")
+        .where("o.doctor_id = :id", { id })
         .getRawMany();
 
       const reservas = await reservaRepository
-        .createQueryBuilder('r')
-        .where(qb => {
+        .createQueryBuilder("r")
+        .where((qb) => {
           const subQuery = qb
             .subQuery()
-            .select('oficina.id')
-            .from(Oficina, 'oficina')
-            .where('oficina.doctor_id = :id')
+            .select("oficina.id")
+            .from(Oficina, "oficina")
+            .where("oficina.doctor_id = :id")
             .getQuery();
-          return 'r.oficina_id IN ' + subQuery;
+          return "r.oficina_id IN " + subQuery;
         })
-        .setParameter('id', id)
-        .andWhere('r.inicio > NOW()')
+        .setParameter("id", id)
+        .andWhere("r.inicio > NOW()")
         .getMany();
 
-      console.log('salida /api/oficinas/getOficinasHorariosByDoctor', horarios_oficina, reservas);
+      console.log(
+        "salida /api/oficinas/getOficinasHorariosByDoctor",
+        horarios_oficina,
+        reservas
+      );
 
-      res.status(200).send({ transaccion: true, horarios_oficina: horarios_oficina, ocupados: reservas });
+      res.status(200).send({
+        transaccion: true,
+        horarios_oficina: horarios_oficina,
+        ocupados: reservas,
+      });
     } catch (error) {
-      console.log('error /api/oficinas/getOficinasHorariosByDoctor', error);
-      res.status(404).send({ transaccion: false, mensaje: 'Error consultando', error: error });
+      console.log("error /api/oficinas/getOficinasHorariosByDoctor", error);
+      res.status(404).send({
+        transaccion: false,
+        mensaje: "Error consultando",
+        error: error,
+      });
     }
   };
 
   static getHorariosByDoctor = async (req: Request, res: Response) => {
     const id: number = parseInt(req.params.id);
-    console.log('entrada /api/oficinas/getHorariosByDoctor', id);
+    console.log("entrada /api/oficinas/getHorariosByDoctor", id);
 
     const oficina_horarioRepository = getRepository(oficina_horario);
 
     try {
       const horarios = await oficina_horarioRepository
-        .createQueryBuilder('horario')
-        .innerJoinAndSelect('oficina', 'o', 'horario.oficina_id = o.id')
+        .createQueryBuilder("horario")
+        .innerJoinAndSelect("oficina", "o", "horario.oficina_id = o.id")
         .select([
-          'horario.id',
-          'horario.oficina_id',
-          'horario.dia_semana',
-          'horario.hora_inicio',
-          'horario.hora_fin',
+          "horario.id",
+          "horario.oficina_id",
+          "horario.dia_semana",
+          "horario.hora_inicio",
+          "horario.hora_fin",
         ])
-        .where('o.doctor_id = :id', { id })
+        .where("o.doctor_id = :id", { id })
         .getMany();
 
-      console.log('salida /api/oficinas/getHorariosByDoctor', horarios);
+      console.log("salida /api/oficinas/getHorariosByDoctor", horarios);
 
       res.status(200).send({ transaccion: true, data: horarios });
     } catch (error) {
-      console.log('error /api/oficinas/getHorariosByDoctor', error);
-      res.status(404).send({ transaccion: false, mensaje: 'Error consultando', error: error });
+      console.log("error /api/oficinas/getHorariosByDoctor", error);
+      res.status(404).send({
+        transaccion: false,
+        mensaje: "Error consultando",
+        error: error,
+      });
     }
   };
 
   static setHorariosByOficina = async (req: Request, res: Response) => {
     const id: number = parseInt(req.params.id);
-    console.log('entrada /api/oficinas/setHorariosByOficina', id);
+    console.log("entrada /api/oficinas/setHorariosByOficina", id);
 
-    const { data = [], doctor_id = '' } = req.body;
+    const { data = [], doctor_id = "" } = req.body;
     if (data.length > 0) {
       let Error = false;
-      data.forEach(async ({ dia_semana = '', hora_inicio = '', hora_fin = '' }) => {
-        if (!!hora_fin && !!hora_inicio && !!dia_semana) {
-          const newHorario = new oficina_horario();
-          newHorario.dia_semana = dia_semana;
-          newHorario.hora_fin = hora_fin;
-          newHorario.hora_inicio = hora_inicio;
-          newHorario.oficina_id = id;
+      data.forEach(
+        async ({ dia_semana = "", hora_inicio = "", hora_fin = "" }) => {
+          if (!!hora_fin && !!hora_inicio && !!dia_semana) {
+            const newHorario = new oficina_horario();
+            newHorario.dia_semana = dia_semana;
+            newHorario.hora_fin = hora_fin;
+            newHorario.hora_inicio = hora_inicio;
+            newHorario.oficina_id = id;
 
-          const oficina_horarioRepository = getRepository(oficina_horario);
+            const oficina_horarioRepository = getRepository(oficina_horario);
 
-          const errors = await validate(newHorario);
-          if (errors.length > 0) {
-            Error = true;
-          } else {
-            try {
-              await oficina_horarioRepository.save(newHorario);
-            } catch (error) {
-              console.log('error /api/oficinas/setOficinasByDoctor', error, Error);
-              // res.status(409).send({ transaccion: false, mensaje: 'ocurrio un error guardando los datos, Intente nuevamente', error: error });
+            const errors = await validate(newHorario);
+            if (errors.length > 0) {
+              Error = true;
+            } else {
+              try {
+                await oficina_horarioRepository.save(newHorario);
+              } catch (error) {
+                console.log(
+                  "error /api/oficinas/setOficinasByDoctor",
+                  error,
+                  Error
+                );
+                // res.status(409).send({ transaccion: false, mensaje: 'ocurrio un error guardando los datos, Intente nuevamente', error: error });
+              }
             }
           }
         }
-      });
+      );
       req.params.id = doctor_id;
       return OficinaController.getHorariosByDoctor(req, res);
     }
-    return res
-      .status(409)
-      .send({ transaccion: false, mensaje: 'No existen datos, Intente nuevamente', error: data });
+    return res.status(409).send({
+      transaccion: false,
+      mensaje: "No existen datos, Intente nuevamente",
+      error: data,
+    });
   };
 
   // static setHorariosByOficina = async (req: Request, res: Response) => {
@@ -259,9 +307,9 @@ class OficinaController {
 
   static updateHorario = async (req: Request, res: Response) => {
     const id: number = parseInt(req.params.id);
-    console.log('entrada /api/oficinas/setHorariosByOficina', id);
+    console.log("entrada /api/oficinas/setHorariosByOficina", id);
 
-    const { dia_semana = '', hora_inicio = '', hora_fin = '' } = req.body;
+    const { dia_semana = "", hora_inicio = "", hora_fin = "" } = req.body;
 
     if (!!hora_fin && !!hora_inicio && !!dia_semana) {
       let newHorario;
@@ -270,7 +318,11 @@ class OficinaController {
         newHorario = await oficina_horarioRepository.findOneOrFail(id);
       } catch (error) {
         //If not found, send a 404 response
-        return res.status(404).send({ transaccion: false, mensaje: 'registro no encontrado', error });
+        return res.status(404).send({
+          transaccion: false,
+          mensaje: "registro no encontrado",
+          error,
+        });
       }
       newHorario.dia_semana = dia_semana;
       newHorario.hora_fin = hora_fin;
@@ -278,25 +330,31 @@ class OficinaController {
 
       const errors = await validate(newHorario);
       if (errors.length > 0) {
-        return res
-          .status(409)
-          .send({ transaccion: false, mensaje: 'Error al establecer datos', error: errors });
+        return res.status(409).send({
+          transaccion: false,
+          mensaje: "Error al establecer datos",
+          error: errors,
+        });
       }
       try {
         await oficina_horarioRepository.save(newHorario);
-        return res
-          .status(200)
-          .send({ transaccion: true, mensaje: 'Datos actualizados correctamente', error: '' });
+        return res.status(200).send({
+          transaccion: true,
+          mensaje: "Datos actualizados correctamente",
+          error: "",
+        });
       } catch (error) {
-        console.log('error /api/oficinas/setOficinasByDoctor', error, Error);
+        console.log("error /api/oficinas/setOficinasByDoctor", error, Error);
         return res.status(409).send({
           transaccion: false,
-          mensaje: 'ocurrio un error guardando los datos, Intente nuevamente',
+          mensaje: "ocurrio un error guardando los datos, Intente nuevamente",
           error: error,
         });
       }
     }
-    return res.status(409).send({ transaccion: false, mensaje: 'Datos no guardados', error: '' });
+    return res
+      .status(409)
+      .send({ transaccion: false, mensaje: "Datos no guardados", error: "" });
   };
 
   static deleteHorario = async (req: Request, res: Response) => {
@@ -307,18 +365,26 @@ class OficinaController {
     try {
       await oficina_horarioRepository.findOneOrFail(id);
     } catch (error) {
-      return res.status(404).send({ transaccion: false, mensaje: 'Registro no encontrado', error });
+      return res
+        .status(404)
+        .send({ transaccion: false, mensaje: "Registro no encontrado", error });
     }
     try {
       oficina_horarioRepository.delete(id);
     } catch (error) {
-      return res.status(404).send({ transaccion: false, mensaje: 'Error al eliminar registro', error });
+      return res.status(404).send({
+        transaccion: false,
+        mensaje: "Error al eliminar registro",
+        error,
+      });
     }
 
     //After all send a 204 (no content, but accepted) response
-    return res
-      .status(200)
-      .send({ transaccion: true, mensaje: 'Registro eliminado correctamente', error: '' });
+    return res.status(200).send({
+      transaccion: true,
+      mensaje: "Registro eliminado correctamente",
+      error: "",
+    });
   };
 }
 

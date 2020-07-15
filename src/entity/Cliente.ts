@@ -17,7 +17,7 @@ export class Cliente extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar', unique: true }) cedula_identidad: string;
+  @Column() cedula_identidad: string;
   @Column() cedula_representante: String;
   @Column() titulo_honorifico: String;
   @Column({ nullable: false, type: 'varchar' }) nombres: String;
@@ -34,7 +34,8 @@ export class Cliente extends BaseEntity {
   @Column({ nullable: true }) tipo_sangre: String;
   @Column({ nullable: true }) foto_perfil: String;
   @Column({ nullable: true }) foto_perfil_content_type: String;
-
+  @Column({ nullable: true }) total_creditos: String;
+  
   @OneToOne(_type => med_user, { cascade: true })
   @JoinColumn({ name: 'user_id' })
   user: med_user;

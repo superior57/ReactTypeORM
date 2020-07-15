@@ -6,5 +6,10 @@
  * @desc [description]
  */
 export default {
-  jwtSecret: "@QEGTUI"
+  jwtSecret: "@QEGTUI",
+  codePass:'a12624a22c62430b8f24178f8cf5579f',
+  identificador:'B6ismsPMlEMXZEYqOeDhw',
+  idCliente:'Y9u14yuSM0iIQA8mS3GF6g',
+  clave:'Ha0qWhYPkmdCka1ttQw'
+
 };

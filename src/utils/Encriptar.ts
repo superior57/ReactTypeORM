@@ -5,7 +5,11 @@
  * @modify date 2020-05-17 18:26:06
  * @desc [description]
  */
-import crypto from "crypto"
+import crypto from "crypto";
+import config from "../config/config";
+const encryptionType = "aes-256-cbc";
+const encryptionEncoding = "base64";
+const bufferEncryption = "utf-8";
 
 const privateKey = `-----BEGIN RSA PRIVATE KEY-----
 MIIJJwIBAAKCAgEAgGUG5LPS0Dm7kCCl+NmQ/B2JvQCw65uF7sqUfJAKkU49kcse
@@ -57,7 +61,7 @@ dG1B+Bglo3ohgPK/y5ppqq/CNJu2uyi8kFXssLlv/yiuzluGlTK1TdXhcEKJBXxZ
 ZwDyQrIB1yJJH1ilRKB/mXVHotvFRQfu9MznALfIp2oRolK7f7aGgVOpLtDsxSWR
 xFxs9jWb+Id6w53J2Td5IsCFto9oQLgZp5Pvm0h4foWcsXC0av9Dg1j/OZXYuLAC
 6jeWV32zWL6lJxslQD9cRZDn08lDNKzaSuatnWxQ3lc+zicqompNv9JrVg==
------END RSA PRIVATE KEY-----`
+-----END RSA PRIVATE KEY-----`;
 
 const publicKey = `-----BEGIN PUBLIC KEY-----
 MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAgGUG5LPS0Dm7kCCl+NmQ
@@ -72,37 +76,75 @@ zzXnniR00k3LDhcDJE5tAC/WwV5/mT178atgDK2jk9nNHo0E5e7cEYtM15CUk+dl
 LvLuEPy+AUV7tx+i3tVJG5HbMUSPX+UDkvmHfgnPbmlNR60ztMJNLy8ho6WgKKFF
 eFRpKPh/onuAf3CZFUuj2r8vgT6xDWn3Mykhq1gWkXPWzmni0Uk+8JqHVOhe+Kcb
 xP2VJm1vINPIPM9HfEz7XPcCAwEAAQ==
------END PUBLIC KEY-----`
+-----END PUBLIC KEY-----`;
 
 class Encriptar {
-
-  static encriptarRSA = (toEncrypt: string, _relativeOrAbsolutePathToPublicKey: string) => {
+  static encriptarRSA = (
+    toEncrypt: string,
+    _relativeOrAbsolutePathToPublicKey: string
+  ) => {
     // var absolutePath = path.resolve(relativeOrAbsolutePathToPublicKey);
     // var publicKey = fs.readFileSync(absolutePath, "utf8");
     try {
       var buffer = Buffer.from(toEncrypt);
       var encrypted = crypto.publicEncrypt(publicKey, buffer);
       const res = encrypted.toString("base64");
-      return JSON.parse(res)
-
+      return JSON.parse(res);
     } catch (error) {
-      return { error }
+      return { error };
     }
   };
 
-  static decryptRSA = (toDecrypt: string, _relativeOrAbsolutePathtoPrivateKey: string) => {
+  static decryptRSA = (
+    toDecrypt: string,
+    _relativeOrAbsolutePathtoPrivateKey: string
+  ) => {
     // var absolutePath = path.resolve(relativeOrAbsolutePathtoPrivateKey);
     // var privateKey = fs.readFileSync(absolutePath, "utf8");
     try {
       var buffer = Buffer.from(toDecrypt, "base64");
       var decrypted = crypto.privateDecrypt(privateKey, buffer);
       const res = decrypted.toString("utf8");
-      return JSON.parse(res)
-
+      return JSON.parse(res);
     } catch (error) {
-      return { error }
+      return { error };
     }
   };
+
+  AesKey: string;
+  AesIV: string;
+  init() {
+    this.AesKey = config.codePass;
+    this.AesIV = "1234567890123456";
+  }
+
+  encrypt(jsonObject: Object): string {
+    try {
+      console.log("encript", this.AesKey, this.AesIV);
+      const value = JSON.stringify(jsonObject);
+      const val = Buffer.from(value, bufferEncryption);
+      const key = Buffer.from(this.AesKey, bufferEncryption);
+      const iv = Buffer.from(this.AesIV, bufferEncryption);
+      console.log("11 ", value, key, val, iv);
+      const cipher = crypto.createCipheriv(encryptionType, key, this.AesIV);
+      
+      let encrypted = cipher.update(val, bufferEncryption, encryptionEncoding);
+      encrypted += cipher.final(encryptionEncoding);
+      return encrypted;
+    } catch (error) {
+      console.log(error);
+      return "";
+    }
+  }
+
+  // decrypt(base64String: string): any {
+  //   const buff = Buffer.from(base64String, encryptionEncoding);
+  //   const key = Buffer.from(this.AesKey, bufferEncryption);
+  //   const iv = Buffer.from(this.AesIV, bufferEncryption);
+  //   const decipher = crypto.createDecipheriv(encryptionType, key, iv);
+  //   const deciphered = decipher.update(buff) + decipher.final();
+  //   return JSON.parse(deciphered);
+  // }
 }
 
 export default Encriptar;
