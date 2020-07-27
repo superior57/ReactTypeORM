@@ -33,16 +33,22 @@ import express from "express";
 import helmet from "helmet";
 import { ApolloServer } from "apollo-server-express";
 
-import { typeDefs } from "./typeDefs/typeDefs";
-import { resolvers } from "./resolvers/resolvers";
+// import { typeDefs } from "./typeDefs/typeDefs";
+import { UserResolvers } from "./resolvers/UserResolvers";
 import morgan from "morgan";
 import cors from "cors";
 import misRutas from "./routes/index.routes";
 
+import { buildSchema } from 'type-graphql'
+
 const startServer = async () => {
   try {
-    const server = new ApolloServer({ typeDefs, resolvers });
-    console.log("antes de la coneccion");
+    const server = new ApolloServer({
+      schema: await buildSchema({
+        resolvers:[UserResolvers]
+      })
+     });
+    
     const connection: Connection = await createConnection();
     console.log("despues de la coneccion", connection);
 
