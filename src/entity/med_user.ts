@@ -44,10 +44,8 @@ export class med_user extends BaseEntity {
   @Field() @Column() @CreateDateColumn() created_date: Date;
   @Field() @Column() @UpdateDateColumn() last_modified_date: Date;
 
-  @Field()
-  @Column()
-  @Length(5, 200)
-  password_hash: string;
+  @Field() @Column() @Length(5, 200) password_hash: string;
+  
   hashPassword() {
     this.password_hash = bcrypt.hashSync(this.password_hash, 10);
   }
