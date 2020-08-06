@@ -5,12 +5,12 @@
  * @modify date 2020-05-17 18:24:10
  * @desc [description]
  */
-import { Request, Response } from 'express';
-import { getRepository } from 'typeorm'; //createConnection
-import { validate } from 'class-validator';
-import { doctor } from '../entity/doctor';
+import { Request, Response } from "express";
+import { getRepository } from "typeorm"; //createConnection
+import { validate } from "class-validator";
+import { doctor } from "../entity/doctor";
 
-import { Reservas } from '../entity/Reservas';
+import { Reservas } from "../entity/Reservas";
 
 // import { Oficina } from '../entity/Oficina';
 // import { Cliente } from '../entity/Cliente'
@@ -23,25 +23,29 @@ class ReservasController {
     const reservasRepository = getRepository(Reservas);
     try {
       const reserva = await reservasRepository
-        .createQueryBuilder('r')
-        .innerJoinAndSelect('oficina', 'o', 'r.oficina_id=o.id')
-        .innerJoinAndSelect('doctor', 'd', 'o.doctor_id = d.id')
-        .innerJoinAndSelect('cliente', 'c', 'r.cliente_id = c.id')
+        .createQueryBuilder("r")
+        .innerJoinAndSelect("oficina", "o", "r.oficina_id=o.id")
+        .innerJoinAndSelect("doctor", "d", "o.doctor_id = d.id")
+        .innerJoinAndSelect("cliente", "c", "r.cliente_id = c.id")
         .select([
-          'r',
-          'c.cedula_identidad identidad',
-          'c.apellidos apellidos',
-          'c.nombres nombres',
-          'o.id oficina_id',
+          "r",
+          "c.cedula_identidad identidad",
+          "c.apellidos apellidos",
+          "c.nombres nombres",
+          "o.id oficina_id",
         ])
-        .orderBy('r.inicio', 'ASC')
-        .where('d.id = :id', { id })
+        .orderBy("r.inicio", "ASC")
+        .where("d.id = :id", { id })
         .getRawMany();
 
-      console.log('salida /api/oficinas/getHorariosByDoctor', reserva, id);
+      console.log("salida /api/oficinas/getHorariosByDoctor", reserva, id);
       res.status(200).send({ transaccion: true, data: reserva });
     } catch (error) {
-      res.status(400).send({ transaccion: false, mensaje: 'Error consultando', error: error });
+      res.status(400).send({
+        transaccion: false,
+        mensaje: "Error consultando",
+        error: error,
+      });
     }
   };
 
@@ -53,14 +57,14 @@ class ReservasController {
       fecha_reserva,
       disponible,
       razon_no_disponibilidad,
-      canal_reserva,
-      estado_reserva,
+      // canal_reserva,
+      // estado_reserva,
       phone_number,
       especializacion_id,
       cliente_id,
       doctor_id,
     } = req.body;
-    console.log('Entrada reserva', req.body);
+    console.log("Entrada reserva", req.body);
     const reservasRepository = getRepository(Reservas);
     let nuevaReserva: Reservas = new Reservas();
     try {
@@ -69,8 +73,8 @@ class ReservasController {
       nuevaReserva.fecha_reserva = fecha_reserva;
       nuevaReserva.disponible = disponible;
       nuevaReserva.razon_no_disponibilidad = razon_no_disponibilidad;
-      nuevaReserva.canal_reserva = canal_reserva;
-      nuevaReserva.estado_reserva = estado_reserva;
+      nuevaReserva.canal_reserva = "APP_MOVIL";
+      nuevaReserva.estado_reserva = "CREADO";
       nuevaReserva.phone_number = phone_number;
       nuevaReserva.especializacion_id = especializacion_id;
       nuevaReserva.cliente_id = cliente_id;
@@ -81,7 +85,11 @@ class ReservasController {
       req.params.id = doctor_id;
       return ReservasController.getReservasbyMedico(req, res);
     } catch (error) {
-      res.status(400).send({ transaccion: false, mensaje: 'Error guardando los datos', error: error });
+      res.status(400).send({
+        transaccion: false,
+        mensaje: "Error guardando los datos",
+        error: error,
+      });
     }
   };
 
@@ -92,12 +100,12 @@ class ReservasController {
     //Get values from the body
     const {
       activado = false,
-      nombres = '',
-      apellidos = '',
-      titulo_honorifico = '',
-      declaracion_profesional = '',
-      numero_telefono = '',
-      practica_desde = '',
+      nombres = "",
+      apellidos = "",
+      titulo_honorifico = "",
+      declaracion_profesional = "",
+      numero_telefono = "",
+      practica_desde = "",
     } = req.body;
 
     if (
@@ -110,9 +118,13 @@ class ReservasController {
         !!practica_desde
       )
     ) {
-      res.status(200).send({ transaccion: false, mensaje: 'Debe enviar todos los campos', error: '' });
+      res.status(200).send({
+        transaccion: false,
+        mensaje: "Debe enviar todos los campos",
+        error: "",
+      });
     }
-    console.log('31 ingresa ', req.body);
+    console.log("31 ingresa ", req.body);
     //Try to find user on database
     const medicoRepository = getRepository(doctor);
     let medico;
@@ -120,10 +132,12 @@ class ReservasController {
       medico = await medicoRepository.findOneOrFail(id);
     } catch (error) {
       //If not found, send a 404 response
-      res.status(200).send({ transaccion: false, mensaje: 'Medico no encontrado', error });
+      res
+        .status(200)
+        .send({ transaccion: false, mensaje: "Medico no encontrado", error });
       return;
     }
-    console.log('42 ingresa ', medico);
+    console.log("42 ingresa ", medico);
     //Validate the new values on model
     medico.activado = activado;
     medico.nombres = nombres;
@@ -145,7 +159,7 @@ class ReservasController {
       console.log(e);
       res.status(409).send({
         transaccion: false,
-        mensaje: 'ocurrio un error guardando los datos, Intente nuevamente',
+        mensaje: "ocurrio un error guardando los datos, Intente nuevamente",
         error: e,
         medico,
       });
