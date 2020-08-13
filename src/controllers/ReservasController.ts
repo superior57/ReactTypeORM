@@ -74,7 +74,7 @@ class ReservasController {
       nuevaReserva.disponible = disponible;
       nuevaReserva.razon_no_disponibilidad = razon_no_disponibilidad;
       nuevaReserva.canal_reserva = "APP_MOVIL";
-      nuevaReserva.estado_reserva = "CREADO";
+      nuevaReserva.estado_reserva = "PAGADO";
       nuevaReserva.phone_number = phone_number;
       nuevaReserva.especializacion_id = especializacion_id;
       nuevaReserva.cliente_id = cliente_id;
