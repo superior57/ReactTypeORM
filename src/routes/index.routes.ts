@@ -32,4 +32,6 @@ routes.use('/api/especializacion', especializacion);
 routes.use('/api/recetas', recetas);
 routes.use('/api/pagos', pagos);
 
+routes.use('/api/app/especializacions', especializacion);
+
 export default routes;

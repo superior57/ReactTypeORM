@@ -8,4 +8,8 @@ const router = Router();
 //Obtener todas las especializaciones
 router.get('/', [checkJwt], EspecializacionController.getAll);
 
+
+//app
+router.get('/:id([0-9]+)/doctors', EspecializacionController.doctorPorEspecializacion);
+
 export default router;
